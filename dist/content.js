@@ -29,6 +29,7 @@
     let HIDE_TOAST_NOTIFICATIONS = false;
     let HIDE_PASTE_SPINNER = false;
     let SPINNER_STYLE = 'circular';
+    let SMART_REPLACE_ENABLED = false;
     let lastCopiedText = '';
     
     chrome.storage.sync.get([
@@ -49,6 +50,7 @@
         'duplicatePreventionEnabled',
         'hideToastNotifications',
         'hidePasteSpinner',
+        'smartReplaceEnabled',
         'websiteBlacklist'
     ], function(result) {
         isEnabled = result.autoCopyEnabled !== false;
@@ -68,10 +70,19 @@
         HIDE_TOAST_NOTIFICATIONS = result.hideToastNotifications === true;
         HIDE_PASTE_SPINNER = result.hidePasteSpinner === true;
         SPINNER_STYLE = result.spinnerStyle || 'circular';
+        SMART_REPLACE_ENABLED = result.smartReplaceEnabled === true;
         WEBSITE_BLACKLIST = result.websiteBlacklist || '';
+        
+        console.log('Extension settings loaded:', {
+            isEnabled: isEnabled,
+            isBlacklisted: isCurrentSiteBlacklisted(),
+            HIDE_TOAST_NOTIFICATIONS: HIDE_TOAST_NOTIFICATIONS
+        });
         
         if (isEnabled && !isCurrentSiteBlacklisted()) {
             initializeAutoCopy();
+        } else {
+            console.log('Extension not initialized:', { isEnabled, isBlacklisted: isCurrentSiteBlacklisted() });
         }
     });
     
@@ -135,6 +146,9 @@
             SPINNER_STYLE = changes.spinnerStyle.newValue;
             recreatePasteIndicator();
         }
+        if (changes.smartReplaceEnabled) {
+            SMART_REPLACE_ENABLED = changes.smartReplaceEnabled.newValue;
+        }
         if (changes.websiteBlacklist) {
             WEBSITE_BLACKLIST = changes.websiteBlacklist.newValue;
             // Check if current site should be disabled
@@ -181,6 +195,104 @@
         return processedText;
     }
     
+    function isEditableElement(element) {
+        if (!element) return false;
+        
+        const tagName = element.tagName.toLowerCase();
+        
+        // Check for input elements (except readonly)
+        if (tagName === 'input') {
+            const type = element.type.toLowerCase();
+            const editableTypes = ['text', 'password', 'email', 'search', 'url', 'tel'];
+            return editableTypes.includes(type) && !element.readOnly && !element.disabled;
+        }
+        
+        // Check for textarea (except readonly)
+        if (tagName === 'textarea') {
+            return !element.readOnly && !element.disabled;
+        }
+        
+        // Check for contenteditable elements
+        if (element.contentEditable === 'true' || element.isContentEditable) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    async function handleSmartReplace(targetElement, selectedText) {
+        try {
+            // Get clipboard content
+            const clipboardText = await navigator.clipboard.readText();
+            if (!clipboardText || clipboardText.trim().length === 0) {
+                return false; // No clipboard content, proceed with normal copy
+            }
+            
+            // Replace selected text with clipboard content
+            const success = await replaceSelectedText(targetElement, clipboardText);
+            if (success) {
+                const preview = clipboardText.length > PREVIEW_LENGTH 
+                    ? clipboardText.substring(0, PREVIEW_LENGTH) + '...' 
+                    : clipboardText;
+                showStatus(`Replaced with: "${preview}"`);
+                return true;
+            }
+            
+            return false;
+        } catch (err) {
+            console.log('Smart replace failed, proceeding with normal copy:', err);
+            return false; // Fallback to normal copy
+        }
+    }
+    
+    async function replaceSelectedText(element, newText) {
+        const tagName = element.tagName.toLowerCase();
+        
+        try {
+            if (tagName === 'input' || tagName === 'textarea') {
+                const start = element.selectionStart;
+                const end = element.selectionEnd;
+                
+                if (start !== null && end !== null && start !== end) {
+                    const currentValue = element.value;
+                    element.value = currentValue.substring(0, start) + newText + currentValue.substring(end);
+                    
+                    // Set cursor position after inserted text
+                    const newCursorPos = start + newText.length;
+                    element.setSelectionRange(newCursorPos, newCursorPos);
+                    
+                    // Trigger input event for frameworks
+                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                    return true;
+                }
+            } else if (element.contentEditable === 'true' || element.isContentEditable) {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    
+                    if (!range.collapsed) { // There is selected text
+                        range.deleteContents();
+                        const textNode = document.createTextNode(newText);
+                        range.insertNode(textNode);
+                        range.setStartAfter(textNode);
+                        range.setEndAfter(textNode);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        
+                        // Trigger input event for frameworks
+                        element.dispatchEvent(new Event('input', { bubbles: true }));
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        } catch (err) {
+            console.log('Replace text failed:', err);
+            return false;
+        }
+    }
+    
     function handleSuccessfulCopy(text) {
         lastCopiedText = text;
         const preview = text.length > PREVIEW_LENGTH ? text.substring(0, PREVIEW_LENGTH) + '...' : text;
@@ -188,13 +300,23 @@
     }
     
     function initializeAutoCopy() {
+        console.log('initializeAutoCopy called');
         createStatusElement();
         createPasteIndicator();
         addEventListeners();
+        console.log('initializeAutoCopy completed, statusElement:', !!statusElement);
     }
     
     function createStatusElement() {
         if (statusElement) return;
+        
+        console.log('createStatusElement called, document.body:', !!document.body);
+        
+        if (!document.body) {
+            console.log('document.body not available, retrying in 100ms');
+            setTimeout(createStatusElement, 100);
+            return;
+        }
         
         statusElement = document.createElement('div');
         statusElement.id = 'auto-copy-status';
@@ -214,6 +336,7 @@
         `;
         updateStatusElementPosition();
         document.body.appendChild(statusElement);
+        console.log('statusElement created and appended to body');
     }
     
     function updateStatusElementPosition() {
@@ -376,6 +499,12 @@
     }
     
     function showStatus(message) {
+        console.log('showStatus called:', message, {
+            statusElement: !!statusElement,
+            isEnabled: isEnabled,
+            HIDE_TOAST_NOTIFICATIONS: HIDE_TOAST_NOTIFICATIONS
+        });
+        
         if (!statusElement || !isEnabled || HIDE_TOAST_NOTIFICATIONS) return;
         
         statusElement.textContent = message;
@@ -623,11 +752,20 @@
         if (!isSelecting) return;
         isSelecting = false;
         
-        selectionTimeout = setTimeout(() => {
+        selectionTimeout = setTimeout(async () => {
             const selectedText = getSelectedText();
             
             const processedText = processTextForCopy(selectedText);
             if (processedText) {
+                // Check if Smart Replace should be used
+                if (SMART_REPLACE_ENABLED && isEditableElement(e.target)) {
+                    const replaced = await handleSmartReplace(e.target, processedText);
+                    if (replaced) {
+                        return; // Smart replace succeeded, don't proceed with normal copy
+                    }
+                }
+                
+                // Normal copy behavior
                 copyToClipboard(processedText)
                     .then(success => {
                         if (success) {
@@ -647,16 +785,27 @@
             e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
             (e.ctrlKey && e.key === 'a')) {
             
-            setTimeout(() => {
+            setTimeout(async () => {
                 const selectedText = getSelectedText();
                 
                 if (selectedText && selectedText.trim().length >= MIN_SELECTION_LENGTH) {
-                    copyToClipboard(selectedText.trim())
+                    const processedText = selectedText.trim();
+                    
+                    // Check if Smart Replace should be used
+                    if (SMART_REPLACE_ENABLED && isEditableElement(e.target)) {
+                        const replaced = await handleSmartReplace(e.target, processedText);
+                        if (replaced) {
+                            return; // Smart replace succeeded, don't proceed with normal copy
+                        }
+                    }
+                    
+                    // Normal copy behavior
+                    copyToClipboard(processedText)
                         .then(success => {
                             if (success) {
-                                const preview = selectedText.length > 30 
-                                    ? selectedText.substring(0, 30) + '...' 
-                                    : selectedText;
+                                const preview = processedText.length > 30 
+                                    ? processedText.substring(0, 30) + '...' 
+                                    : processedText;
                                 showStatus(`Copied: "${preview}"`);
                             } else {
                                 showStatus('Failed to copy text');
@@ -670,11 +819,20 @@
     function handleDoubleClick(e) {
         if (!isEnabled || !DOUBLE_CLICK_ENABLED) return;
         
-        setTimeout(() => {
+        setTimeout(async () => {
             const selectedText = getSelectedText();
             
             const processedText = processTextForCopy(selectedText);
             if (processedText) {
+                // Check if Smart Replace should be used
+                if (SMART_REPLACE_ENABLED && isEditableElement(e.target)) {
+                    const replaced = await handleSmartReplace(e.target, processedText);
+                    if (replaced) {
+                        return; // Smart replace succeeded, don't proceed with normal copy
+                    }
+                }
+                
+                // Normal copy behavior
                 copyToClipboard(processedText)
                     .then(success => {
                         if (success) {

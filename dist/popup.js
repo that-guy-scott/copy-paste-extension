@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const duplicatePrevention = document.getElementById('duplicatePrevention');
     const hideToastNotifications = document.getElementById('hideToastNotifications');
     const hidePasteSpinner = document.getElementById('hidePasteSpinner');
+    const smartReplaceEnabled = document.getElementById('smartReplaceEnabled');
     const websiteBlacklist = document.getElementById('websiteBlacklist');
     const status = document.getElementById('status');
     
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'duplicatePreventionEnabled',
         'hideToastNotifications',
         'hidePasteSpinner',
+        'smartReplaceEnabled',
         'websiteBlacklist'
     ], function(result) {
         copyToggle.checked = result.autoCopyEnabled !== false;
@@ -85,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         duplicatePrevention.checked = result.duplicatePreventionEnabled === true;
         hideToastNotifications.checked = result.hideToastNotifications === true;
         hidePasteSpinner.checked = result.hidePasteSpinner === true;
+        smartReplaceEnabled.checked = result.smartReplaceEnabled === true;
         websiteBlacklist.value = result.websiteBlacklist || '';
         
         updateStatus(copyToggle.checked, pasteToggle.checked);
@@ -188,6 +191,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     hidePasteSpinner.addEventListener('change', function() {
         chrome.storage.sync.set({ hidePasteSpinner: hidePasteSpinner.checked });
+    });
+    
+    smartReplaceEnabled.addEventListener('change', function() {
+        chrome.storage.sync.set({ smartReplaceEnabled: smartReplaceEnabled.checked });
     });
     
     websiteBlacklist.addEventListener('input', function() {

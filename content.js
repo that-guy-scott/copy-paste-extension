@@ -14,14 +14,54 @@
     let initialMouseX = 0;
     let initialMouseY = 0;
     let HOLD_DURATION = 450;
-    const SPINNER_DELAY = 100;
-    const MOVEMENT_TOLERANCE = 8;
+    let STATUS_DURATION = 2000;
+    let PREVIEW_LENGTH = 30;
+    let MIN_SELECTION_LENGTH = 1;
+    let SPINNER_DELAY = 100;
+    let MOVEMENT_TOLERANCE = 8;
+    let NOTIFICATION_POSITION = 'top-right';
+    let MOUSE_SELECTION_ENABLED = true;
+    let KEYBOARD_SELECTION_ENABLED = true;
+    let DOUBLE_CLICK_ENABLED = true;
+    let AUTO_TRIM_ENABLED = true;
+    let DUPLICATE_PREVENTION_ENABLED = false;
+    let WEBSITE_BLACKLIST = '';
+    let lastCopiedText = '';
     
-    chrome.storage.sync.get(['autoCopyEnabled', 'holdPasteEnabled', 'pasteDelay'], function(result) {
+    chrome.storage.sync.get([
+        'autoCopyEnabled', 
+        'holdPasteEnabled', 
+        'pasteDelay',
+        'statusDuration',
+        'previewLength',
+        'minSelectionLength',
+        'movementTolerance',
+        'spinnerDelay',
+        'notificationPosition',
+        'mouseSelectionEnabled',
+        'keyboardSelectionEnabled',
+        'doubleClickEnabled',
+        'autoTrimEnabled',
+        'duplicatePreventionEnabled',
+        'websiteBlacklist'
+    ], function(result) {
         isEnabled = result.autoCopyEnabled !== false;
         isPasteEnabled = result.holdPasteEnabled !== false;
         HOLD_DURATION = result.pasteDelay || 450;
-        if (isEnabled) {
+        STATUS_DURATION = result.statusDuration || 2000;
+        PREVIEW_LENGTH = result.previewLength || 30;
+        MIN_SELECTION_LENGTH = result.minSelectionLength || 1;
+        MOVEMENT_TOLERANCE = result.movementTolerance || 8;
+        SPINNER_DELAY = result.spinnerDelay || 100;
+        NOTIFICATION_POSITION = result.notificationPosition || 'top-right';
+        MOUSE_SELECTION_ENABLED = result.mouseSelectionEnabled !== false;
+        KEYBOARD_SELECTION_ENABLED = result.keyboardSelectionEnabled !== false;
+        DOUBLE_CLICK_ENABLED = result.doubleClickEnabled !== false;
+        AUTO_TRIM_ENABLED = result.autoTrimEnabled !== false;
+        DUPLICATE_PREVENTION_ENABLED = result.duplicatePreventionEnabled === true;
+        WEBSITE_BLACKLIST = result.websiteBlacklist || '';
+        
+        if (isEnabled && !isCurrentSiteBlacklisted()) {
             initializeAutoCopy();
         }
     });
@@ -41,7 +81,91 @@
         if (changes.pasteDelay) {
             HOLD_DURATION = changes.pasteDelay.newValue;
         }
+        if (changes.statusDuration) {
+            STATUS_DURATION = changes.statusDuration.newValue;
+        }
+        if (changes.previewLength) {
+            PREVIEW_LENGTH = changes.previewLength.newValue;
+        }
+        if (changes.minSelectionLength) {
+            MIN_SELECTION_LENGTH = changes.minSelectionLength.newValue;
+        }
+        if (changes.movementTolerance) {
+            MOVEMENT_TOLERANCE = changes.movementTolerance.newValue;
+        }
+        if (changes.spinnerDelay) {
+            SPINNER_DELAY = changes.spinnerDelay.newValue;
+        }
+        if (changes.notificationPosition) {
+            NOTIFICATION_POSITION = changes.notificationPosition.newValue;
+            updateStatusElementPosition();
+        }
+        if (changes.mouseSelectionEnabled) {
+            MOUSE_SELECTION_ENABLED = changes.mouseSelectionEnabled.newValue;
+        }
+        if (changes.keyboardSelectionEnabled) {
+            KEYBOARD_SELECTION_ENABLED = changes.keyboardSelectionEnabled.newValue;
+        }
+        if (changes.doubleClickEnabled) {
+            DOUBLE_CLICK_ENABLED = changes.doubleClickEnabled.newValue;
+        }
+        if (changes.autoTrimEnabled) {
+            AUTO_TRIM_ENABLED = changes.autoTrimEnabled.newValue;
+        }
+        if (changes.duplicatePreventionEnabled) {
+            DUPLICATE_PREVENTION_ENABLED = changes.duplicatePreventionEnabled.newValue;
+        }
+        if (changes.websiteBlacklist) {
+            WEBSITE_BLACKLIST = changes.websiteBlacklist.newValue;
+            // Check if current site should be disabled
+            if (isCurrentSiteBlacklisted()) {
+                removeEventListeners();
+            } else if (isEnabled) {
+                initializeAutoCopy();
+            }
+        }
     });
+    
+    function isCurrentSiteBlacklisted() {
+        if (!WEBSITE_BLACKLIST || WEBSITE_BLACKLIST.trim() === '') {
+            return false;
+        }
+        
+        const currentDomain = window.location.hostname;
+        const blacklistedDomains = WEBSITE_BLACKLIST.split('\n')
+            .map(domain => domain.trim())
+            .filter(domain => domain.length > 0);
+        
+        return blacklistedDomains.some(domain => {
+            // Check for exact match or subdomain match
+            return currentDomain === domain || currentDomain.endsWith('.' + domain);
+        });
+    }
+    
+    function processTextForCopy(text) {
+        if (!text) return null;
+        
+        // Apply auto-trim if enabled
+        const processedText = AUTO_TRIM_ENABLED ? text.trim() : text;
+        
+        // Check minimum length
+        if (processedText.length < MIN_SELECTION_LENGTH) {
+            return null;
+        }
+        
+        // Check for duplicate prevention
+        if (DUPLICATE_PREVENTION_ENABLED && processedText === lastCopiedText) {
+            return null;
+        }
+        
+        return processedText;
+    }
+    
+    function handleSuccessfulCopy(text) {
+        lastCopiedText = text;
+        const preview = text.length > PREVIEW_LENGTH ? text.substring(0, PREVIEW_LENGTH) + '...' : text;
+        showStatus(`Copied: "${preview}"`);
+    }
     
     function initializeAutoCopy() {
         createStatusElement();
@@ -56,8 +180,6 @@
         statusElement.id = 'auto-copy-status';
         statusElement.style.cssText = `
             position: fixed;
-            top: 20px;
-            right: 20px;
             background-color: #4CAF50;
             color: white;
             padding: 8px 16px;
@@ -70,7 +192,41 @@
             pointer-events: none;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         `;
+        updateStatusElementPosition();
         document.body.appendChild(statusElement);
+    }
+    
+    function updateStatusElementPosition() {
+        if (!statusElement) return;
+        
+        // Clear existing position styles
+        statusElement.style.top = '';
+        statusElement.style.bottom = '';
+        statusElement.style.left = '';
+        statusElement.style.right = '';
+        
+        // Set position based on NOTIFICATION_POSITION
+        switch (NOTIFICATION_POSITION) {
+            case 'top-left':
+                statusElement.style.top = '20px';
+                statusElement.style.left = '20px';
+                break;
+            case 'top-right':
+                statusElement.style.top = '20px';
+                statusElement.style.right = '20px';
+                break;
+            case 'bottom-left':
+                statusElement.style.bottom = '20px';
+                statusElement.style.left = '20px';
+                break;
+            case 'bottom-right':
+                statusElement.style.bottom = '20px';
+                statusElement.style.right = '20px';
+                break;
+            default:
+                statusElement.style.top = '20px';
+                statusElement.style.right = '20px';
+        }
     }
     
     function createPasteIndicator() {
@@ -134,7 +290,7 @@
             if (statusElement) {
                 statusElement.style.opacity = '0';
             }
-        }, 2000);
+        }, STATUS_DURATION);
     }
     
     async function copyToClipboard(text) {
@@ -172,7 +328,7 @@
             
             const success = insertTextAtPosition(targetElement, text);
             if (success) {
-                const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
+                const preview = text.length > PREVIEW_LENGTH ? text.substring(0, PREVIEW_LENGTH) + '...' : text;
                 showStatus(`Pasted: "${preview}"`);
                 return true;
             } else {
@@ -353,7 +509,7 @@
     }
     
     function handleMouseUp(e) {
-        if (!isEnabled) return;
+        if (!isEnabled || !MOUSE_SELECTION_ENABLED) return;
         
         if (isHolding) {
             cancelHold();
@@ -365,14 +521,12 @@
         selectionTimeout = setTimeout(() => {
             const selectedText = getSelectedText();
             
-            if (selectedText && selectedText.trim().length > 0) {
-                copyToClipboard(selectedText.trim())
+            const processedText = processTextForCopy(selectedText);
+            if (processedText) {
+                copyToClipboard(processedText)
                     .then(success => {
                         if (success) {
-                            const preview = selectedText.length > 30 
-                                ? selectedText.substring(0, 30) + '...' 
-                                : selectedText;
-                            showStatus(`Copied: "${preview}"`);
+                            handleSuccessfulCopy(processedText);
                         } else {
                             showStatus('Failed to copy text');
                         }
@@ -382,7 +536,7 @@
     }
     
     function handleKeyUp(e) {
-        if (!isEnabled) return;
+        if (!isEnabled || !KEYBOARD_SELECTION_ENABLED) return;
         
         if (e.shiftKey || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || 
             e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
@@ -391,7 +545,7 @@
             setTimeout(() => {
                 const selectedText = getSelectedText();
                 
-                if (selectedText && selectedText.trim().length > 0) {
+                if (selectedText && selectedText.trim().length >= MIN_SELECTION_LENGTH) {
                     copyToClipboard(selectedText.trim())
                         .then(success => {
                             if (success) {
@@ -409,19 +563,17 @@
     }
     
     function handleDoubleClick(e) {
-        if (!isEnabled) return;
+        if (!isEnabled || !DOUBLE_CLICK_ENABLED) return;
         
         setTimeout(() => {
             const selectedText = getSelectedText();
             
-            if (selectedText && selectedText.trim().length > 0) {
-                copyToClipboard(selectedText.trim())
+            const processedText = processTextForCopy(selectedText);
+            if (processedText) {
+                copyToClipboard(processedText)
                     .then(success => {
                         if (success) {
-                            const preview = selectedText.length > 30 
-                                ? selectedText.substring(0, 30) + '...' 
-                                : selectedText;
-                            showStatus(`Copied: "${preview}"`);
+                            handleSuccessfulCopy(processedText);
                         } else {
                             showStatus('Failed to copy text');
                         }

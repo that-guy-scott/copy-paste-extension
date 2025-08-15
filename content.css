@@ -1,1 +1,296 @@
-/* Additional styles for the extension can go here if needed */
+/* Spinner Base Styles */
+.copy-paste-spinner {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    display: none;
+    z-index: 1000000;
+    pointer-events: none;
+    transition: transform 0.1s ease;
+}
+
+/* Circular Spinner (default) */
+.copy-paste-spinner.circular {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.copy-paste-spinner.circular .progress-ring {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #2196F3;
+    transform: rotate(-90deg);
+    transition: border-top-color 0.3s ease;
+}
+
+.copy-paste-spinner.circular .spinner-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Dots Spinner */
+.copy-paste-spinner.dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.copy-paste-spinner.dots .dot {
+    width: 8px;
+    height: 8px;
+    background: #2196F3;
+    border-radius: 50%;
+    animation: dotsBounce 1.4s infinite ease-in-out;
+}
+
+.copy-paste-spinner.dots .dot:nth-child(1) { animation-delay: -0.32s; }
+.copy-paste-spinner.dots .dot:nth-child(2) { animation-delay: -0.16s; }
+.copy-paste-spinner.dots .dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes dotsBounce {
+    0%, 80%, 100% { 
+        transform: scale(0.6); 
+        opacity: 0.5; 
+        background: #2196F3; 
+    }
+    40% { 
+        transform: scale(1); 
+        opacity: 1; 
+        background: #4CAF50; 
+    }
+}
+
+/* Bars Spinner */
+.copy-paste-spinner.bars {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.copy-paste-spinner.bars .bar {
+    width: 4px;
+    height: 24px;
+    background: #2196F3;
+    border-radius: 2px;
+    animation: barsStretch 1.2s infinite ease-in-out;
+}
+
+.copy-paste-spinner.bars .bar:nth-child(1) { animation-delay: -1.1s; }
+.copy-paste-spinner.bars .bar:nth-child(2) { animation-delay: -1.0s; }
+.copy-paste-spinner.bars .bar:nth-child(3) { animation-delay: -0.9s; }
+.copy-paste-spinner.bars .bar:nth-child(4) { animation-delay: -0.8s; }
+
+@keyframes barsStretch {
+    0%, 40%, 100% { 
+        transform: scaleY(0.4); 
+        background: #2196F3; 
+    }
+    20% { 
+        transform: scaleY(1.0); 
+        background: #4CAF50; 
+    }
+}
+
+/* Pulse Spinner */
+.copy-paste-spinner.pulse {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+    animation: pulseScale 1s infinite ease-in-out;
+}
+
+.copy-paste-spinner.pulse .pulse-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+}
+
+@keyframes pulseScale {
+    0% { 
+        transform: scale(1); 
+        opacity: 0.9; 
+        background: linear-gradient(45deg, #2196F3, #1976D2); 
+    }
+    50% { 
+        transform: scale(1.15); 
+        opacity: 0.6; 
+        background: linear-gradient(45deg, #4CAF50, #388E3C); 
+    }
+    100% { 
+        transform: scale(1); 
+        opacity: 0.9; 
+        background: linear-gradient(45deg, #2196F3, #1976D2); 
+    }
+}
+
+/* Spiral Spinner */
+.copy-paste-spinner.spiral {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-paste-spinner.spiral .spiral-line {
+    width: 40px;
+    height: 40px;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    border-top: 3px solid #2196F3;
+    animation: spiralSpin 1s linear infinite, spiralColor 2s ease-in-out infinite;
+}
+
+@keyframes spiralSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spiralColor {
+    0% { border-top-color: #2196F3; }
+    50% { border-top-color: #4CAF50; }
+    100% { border-top-color: #2196F3; }
+}
+
+/* Ripple Spinner */
+.copy-paste-spinner.ripple {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.copy-paste-spinner.ripple .ripple-circle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #2196F3;
+    animation: rippleExpand 1.5s infinite ease-out;
+}
+
+.copy-paste-spinner.ripple .ripple-circle:nth-child(1) { animation-delay: 0s; }
+.copy-paste-spinner.ripple .ripple-circle:nth-child(2) { animation-delay: 0.5s; }
+.copy-paste-spinner.ripple .ripple-circle:nth-child(3) { animation-delay: 1s; }
+
+@keyframes rippleExpand {
+    0% { 
+        transform: scale(0.2); 
+        opacity: 1; 
+        border-color: #2196F3; 
+    }
+    50% { 
+        transform: scale(1.5); 
+        opacity: 0.5; 
+        border-color: #4CAF50; 
+    }
+    100% { 
+        transform: scale(2); 
+        opacity: 0; 
+        border-color: #4CAF50; 
+    }
+}
+
+/* Grid Spinner */
+.copy-paste-spinner.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.copy-paste-spinner.grid .grid-square {
+    width: 8px;
+    height: 8px;
+    background: #2196F3;
+    border-radius: 1px;
+    animation: gridFill 1.8s infinite ease-in-out;
+}
+
+.copy-paste-spinner.grid .grid-square:nth-child(1) { animation-delay: 0.0s; }
+.copy-paste-spinner.grid .grid-square:nth-child(2) { animation-delay: 0.2s; }
+.copy-paste-spinner.grid .grid-square:nth-child(3) { animation-delay: 0.4s; }
+.copy-paste-spinner.grid .grid-square:nth-child(4) { animation-delay: 0.6s; }
+.copy-paste-spinner.grid .grid-square:nth-child(5) { animation-delay: 0.8s; }
+.copy-paste-spinner.grid .grid-square:nth-child(6) { animation-delay: 1.0s; }
+.copy-paste-spinner.grid .grid-square:nth-child(7) { animation-delay: 1.2s; }
+.copy-paste-spinner.grid .grid-square:nth-child(8) { animation-delay: 1.4s; }
+.copy-paste-spinner.grid .grid-square:nth-child(9) { animation-delay: 1.6s; }
+
+@keyframes gridFill {
+    0%, 70%, 100% { 
+        transform: scale(0.3); 
+        background: #2196F3; 
+        opacity: 0.3; 
+    }
+    35% { 
+        transform: scale(1); 
+        background: #4CAF50; 
+        opacity: 1; 
+    }
+}
+
+/* Loader Spinner */
+.copy-paste-spinner.loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.copy-paste-spinner.loader .loader-bar {
+    width: 40px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.copy-paste-spinner.loader .loader-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #2196F3, #4CAF50);
+    border-radius: 3px;
+    animation: loaderFill 1.5s ease-in-out infinite;
+}
+
+.copy-paste-spinner.loader .loader-text {
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 8px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+}
+
+@keyframes loaderFill {
+    0% { width: 0%; }
+    50% { width: 100%; }
+    100% { width: 0%; }
+}

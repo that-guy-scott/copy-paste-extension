@@ -28,6 +28,7 @@
     let WEBSITE_BLACKLIST = '';
     let HIDE_TOAST_NOTIFICATIONS = false;
     let HIDE_PASTE_SPINNER = false;
+    let SPINNER_STYLE = 'circular';
     let lastCopiedText = '';
     
     chrome.storage.sync.get([
@@ -40,6 +41,7 @@
         'movementTolerance',
         'spinnerDelay',
         'notificationPosition',
+        'spinnerStyle',
         'mouseSelectionEnabled',
         'keyboardSelectionEnabled',
         'doubleClickEnabled',
@@ -65,6 +67,7 @@
         DUPLICATE_PREVENTION_ENABLED = result.duplicatePreventionEnabled === true;
         HIDE_TOAST_NOTIFICATIONS = result.hideToastNotifications === true;
         HIDE_PASTE_SPINNER = result.hidePasteSpinner === true;
+        SPINNER_STYLE = result.spinnerStyle || 'circular';
         WEBSITE_BLACKLIST = result.websiteBlacklist || '';
         
         if (isEnabled && !isCurrentSiteBlacklisted()) {
@@ -126,6 +129,10 @@
         }
         if (changes.hidePasteSpinner) {
             HIDE_PASTE_SPINNER = changes.hidePasteSpinner.newValue;
+        }
+        if (changes.spinnerStyle) {
+            SPINNER_STYLE = changes.spinnerStyle.newValue;
+            recreatePasteIndicator();
         }
         if (changes.websiteBlacklist) {
             WEBSITE_BLACKLIST = changes.websiteBlacklist.newValue;
@@ -245,51 +252,72 @@
         if (pasteIndicator) return;
         
         pasteIndicator = document.createElement('div');
-        pasteIndicator.style.cssText = `
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            border-radius: 50%;
-            display: none;
-            z-index: 1000000;
-            pointer-events: none;
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-            transition: transform 0.1s ease;
-        `;
+        pasteIndicator.className = `copy-paste-spinner ${SPINNER_STYLE}`;
         
-        const progressRing = document.createElement('div');
-        progressRing.style.cssText = `
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            transform: rotate(-90deg);
-            transition: border-top-color 0.1s ease;
-        `;
+        // Create inner content based on spinner type
+        if (SPINNER_STYLE === 'circular') {
+            const progressRing = document.createElement('div');
+            progressRing.className = 'progress-ring';
+            const text = document.createElement('div');
+            text.className = 'spinner-text';
+            text.textContent = 'PASTE';
+            pasteIndicator.appendChild(progressRing);
+            pasteIndicator.appendChild(text);
+        } else if (SPINNER_STYLE === 'dots') {
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                pasteIndicator.appendChild(dot);
+            }
+        } else if (SPINNER_STYLE === 'bars') {
+            for (let i = 0; i < 4; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                pasteIndicator.appendChild(bar);
+            }
+        } else if (SPINNER_STYLE === 'pulse') {
+            const text = document.createElement('div');
+            text.className = 'pulse-text';
+            text.textContent = 'PASTE';
+            pasteIndicator.appendChild(text);
+        } else if (SPINNER_STYLE === 'spiral') {
+            const spiralLine = document.createElement('div');
+            spiralLine.className = 'spiral-line';
+            pasteIndicator.appendChild(spiralLine);
+        } else if (SPINNER_STYLE === 'ripple') {
+            for (let i = 0; i < 3; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'ripple-circle';
+                pasteIndicator.appendChild(circle);
+            }
+        } else if (SPINNER_STYLE === 'grid') {
+            for (let i = 0; i < 9; i++) {
+                const square = document.createElement('div');
+                square.className = 'grid-square';
+                pasteIndicator.appendChild(square);
+            }
+        } else if (SPINNER_STYLE === 'loader') {
+            const loaderBar = document.createElement('div');
+            loaderBar.className = 'loader-bar';
+            const loaderFill = document.createElement('div');
+            loaderFill.className = 'loader-fill';
+            loaderBar.appendChild(loaderFill);
+            const text = document.createElement('div');
+            text.className = 'loader-text';
+            text.textContent = 'PASTE';
+            pasteIndicator.appendChild(loaderBar);
+            pasteIndicator.appendChild(text);
+        }
         
-        const text = document.createElement('div');
-        text.style.cssText = `
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            font-weight: bold;
-            text-align: center;
-            line-height: 1;
-        `;
-        text.textContent = 'PASTE';
-        
-        pasteIndicator.appendChild(progressRing);
-        pasteIndicator.appendChild(text);
         document.body.appendChild(pasteIndicator);
+    }
+    
+    function recreatePasteIndicator() {
+        if (pasteIndicator) {
+            pasteIndicator.remove();
+            pasteIndicator = null;
+        }
+        createPasteIndicator();
     }
     
     function showStatus(message) {
@@ -465,12 +493,22 @@
         const animationDuration = HOLD_DURATION - SPINNER_DELAY;
         const animationElapsed = Math.max(0, elapsed - SPINNER_DELAY);
         const progress = Math.min(animationElapsed / animationDuration, 1);
-        const progressRing = pasteIndicator.querySelector('div');
         
-        if (progressRing) {
-            const angle = progress * 360;
-            progressRing.style.borderTopColor = progress < 1 ? 'white' : '#4CAF50';
-            progressRing.style.transform = `rotate(${-90 + angle}deg)`;
+        // Only animate progress for circular spinner
+        if (SPINNER_STYLE === 'circular') {
+            const progressRing = pasteIndicator.querySelector('.progress-ring');
+            if (progressRing) {
+                const angle = progress * 360;
+                // Blue to green transition: interpolate between #2196F3 and #4CAF50
+                const blue = { r: 33, g: 150, b: 243 };
+                const green = { r: 76, g: 175, b: 80 };
+                const r = Math.round(blue.r + (green.r - blue.r) * progress);
+                const g = Math.round(blue.g + (green.g - blue.g) * progress);
+                const b = Math.round(blue.b + (green.b - blue.b) * progress);
+                const color = `rgb(${r}, ${g}, ${b})`;
+                progressRing.style.borderTopColor = color;
+                progressRing.style.transform = `rotate(${-90 + angle}deg)`;
+            }
         }
         
         if (progress < 1 && isHolding) {

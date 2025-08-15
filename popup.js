@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const spinnerDelaySlider = document.getElementById('spinnerDelaySlider');
     const spinnerDelayValue = document.getElementById('spinnerDelayValue');
     const notificationPosition = document.getElementById('notificationPosition');
+    const spinnerStyle = document.getElementById('spinnerStyle');
     const mouseSelectionTrigger = document.getElementById('mouseSelectionTrigger');
     const keyboardSelectionTrigger = document.getElementById('keyboardSelectionTrigger');
     const doubleClickTrigger = document.getElementById('doubleClickTrigger');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'movementTolerance',
         'spinnerDelay',
         'notificationPosition',
+        'spinnerStyle',
         'mouseSelectionEnabled',
         'keyboardSelectionEnabled',
         'doubleClickEnabled',
@@ -72,6 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const position = result.notificationPosition || 'top-right';
         notificationPosition.value = position;
+        
+        const spinner = result.spinnerStyle || 'circular';
+        spinnerStyle.value = spinner;
         
         mouseSelectionTrigger.checked = result.mouseSelectionEnabled !== false;
         keyboardSelectionTrigger.checked = result.keyboardSelectionEnabled !== false;
@@ -149,6 +154,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const position = notificationPosition.value;
         
         chrome.storage.sync.set({ notificationPosition: position });
+    });
+    
+    spinnerStyle.addEventListener('change', function() {
+        const style = spinnerStyle.value;
+        
+        chrome.storage.sync.set({ spinnerStyle: style });
     });
     
     mouseSelectionTrigger.addEventListener('change', function() {

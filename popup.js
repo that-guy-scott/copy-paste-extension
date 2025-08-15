@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const doubleClickTrigger = document.getElementById('doubleClickTrigger');
     const autoTrimWhitespace = document.getElementById('autoTrimWhitespace');
     const duplicatePrevention = document.getElementById('duplicatePrevention');
+    const hideToastNotifications = document.getElementById('hideToastNotifications');
+    const hidePasteSpinner = document.getElementById('hidePasteSpinner');
     const websiteBlacklist = document.getElementById('websiteBlacklist');
     const status = document.getElementById('status');
     
@@ -37,6 +39,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'doubleClickEnabled',
         'autoTrimEnabled',
         'duplicatePreventionEnabled',
+        'hideToastNotifications',
+        'hidePasteSpinner',
         'websiteBlacklist'
     ], function(result) {
         copyToggle.checked = result.autoCopyEnabled !== false;
@@ -74,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
         doubleClickTrigger.checked = result.doubleClickEnabled !== false;
         autoTrimWhitespace.checked = result.autoTrimEnabled !== false;
         duplicatePrevention.checked = result.duplicatePreventionEnabled === true;
+        hideToastNotifications.checked = result.hideToastNotifications === true;
+        hidePasteSpinner.checked = result.hidePasteSpinner === true;
         websiteBlacklist.value = result.websiteBlacklist || '';
         
         updateStatus(copyToggle.checked, pasteToggle.checked);
@@ -163,6 +169,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     duplicatePrevention.addEventListener('change', function() {
         chrome.storage.sync.set({ duplicatePreventionEnabled: duplicatePrevention.checked });
+    });
+    
+    hideToastNotifications.addEventListener('change', function() {
+        chrome.storage.sync.set({ hideToastNotifications: hideToastNotifications.checked });
+    });
+    
+    hidePasteSpinner.addEventListener('change', function() {
+        chrome.storage.sync.set({ hidePasteSpinner: hidePasteSpinner.checked });
     });
     
     websiteBlacklist.addEventListener('input', function() {

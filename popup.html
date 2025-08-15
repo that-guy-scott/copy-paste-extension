@@ -12,8 +12,27 @@
         }
         
         .header {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             margin-bottom: 20px;
+            padding: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .header-logo {
+            height: 28px;
+            width: 28px;
+        }
+        
+        .header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
         }
         
         .toggle-container {
@@ -340,6 +359,7 @@
 </head>
 <body>
     <div class="header">
+        <img src="icons/icon128.png" alt="Auto Copy Selection" class="header-logo">
         <h3>Auto Copy Selection</h3>
     </div>
     
@@ -475,6 +495,18 @@
                     <option value="bottom-right">Bottom Right</option>
                     <option value="bottom-left">Bottom Left</option>
                 </select>
+            </div>
+            
+            <div class="checkbox-group">
+                <label class="textarea-label">Visual Options:</label>
+                <div class="checkbox-item tooltip-container">
+                    <input type="checkbox" id="hideToastNotifications">
+                    <span class="tooltip-trigger" data-tooltip="Hide copy/paste success notifications">Hide Toast Notifications</span>
+                </div>
+                <div class="checkbox-item tooltip-container">
+                    <input type="checkbox" id="hidePasteSpinner">
+                    <span class="tooltip-trigger" data-tooltip="Hide circular indicator during paste gestures">Hide Paste Spinner</span>
+                </div>
             </div>
             
             <div class="textarea-container tooltip-container">

@@ -14,6 +14,8 @@ chrome.runtime.onInstalled.addListener(function() {
         doubleClickEnabled: true,
         autoTrimEnabled: true,
         duplicatePreventionEnabled: false,
-        websiteBlacklist: ''
+        websiteBlacklist: '',
+        hideToastNotifications: false,
+        hidePasteSpinner: false
     });
 });

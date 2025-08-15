@@ -26,6 +26,8 @@
     let AUTO_TRIM_ENABLED = true;
     let DUPLICATE_PREVENTION_ENABLED = false;
     let WEBSITE_BLACKLIST = '';
+    let HIDE_TOAST_NOTIFICATIONS = false;
+    let HIDE_PASTE_SPINNER = false;
     let lastCopiedText = '';
     
     chrome.storage.sync.get([
@@ -43,6 +45,8 @@
         'doubleClickEnabled',
         'autoTrimEnabled',
         'duplicatePreventionEnabled',
+        'hideToastNotifications',
+        'hidePasteSpinner',
         'websiteBlacklist'
     ], function(result) {
         isEnabled = result.autoCopyEnabled !== false;
@@ -59,6 +63,8 @@
         DOUBLE_CLICK_ENABLED = result.doubleClickEnabled !== false;
         AUTO_TRIM_ENABLED = result.autoTrimEnabled !== false;
         DUPLICATE_PREVENTION_ENABLED = result.duplicatePreventionEnabled === true;
+        HIDE_TOAST_NOTIFICATIONS = result.hideToastNotifications === true;
+        HIDE_PASTE_SPINNER = result.hidePasteSpinner === true;
         WEBSITE_BLACKLIST = result.websiteBlacklist || '';
         
         if (isEnabled && !isCurrentSiteBlacklisted()) {
@@ -114,6 +120,12 @@
         }
         if (changes.duplicatePreventionEnabled) {
             DUPLICATE_PREVENTION_ENABLED = changes.duplicatePreventionEnabled.newValue;
+        }
+        if (changes.hideToastNotifications) {
+            HIDE_TOAST_NOTIFICATIONS = changes.hideToastNotifications.newValue;
+        }
+        if (changes.hidePasteSpinner) {
+            HIDE_PASTE_SPINNER = changes.hidePasteSpinner.newValue;
         }
         if (changes.websiteBlacklist) {
             WEBSITE_BLACKLIST = changes.websiteBlacklist.newValue;
@@ -281,7 +293,7 @@
     }
     
     function showStatus(message) {
-        if (!statusElement || !isEnabled) return;
+        if (!statusElement || !isEnabled || HIDE_TOAST_NOTIFICATIONS) return;
         
         statusElement.textContent = message;
         statusElement.style.opacity = '1';
@@ -419,7 +431,7 @@
         initialMouseY = e.clientY;
         
         spinnerTimer = setTimeout(() => {
-            if (isHolding) {
+            if (isHolding && !HIDE_PASTE_SPINNER) {
                 showPasteIndicator(e.clientX, e.clientY);
             }
         }, SPINNER_DELAY);

@@ -1,0 +1,11 @@
+{
+  "name": "auto-copy-selection",
+  "version": "1.0.0",
+  "description": "Streamline your copy-paste workflow with automatic text copying and intuitive hold-to-paste gestures",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "keywords": ["chrome-extension", "copy-paste", "productivity"],
+  "author": "",
+  "license": "MIT"
+}

@@ -33,6 +33,8 @@ Transform your browsing experience with **15+ configurable settings** across **4
 - **Notification Positioning**: Choose from 4 corner positions for status messages
 - **Status Duration Control**: Customize how long notifications stay visible (200-5000ms)
 - **Preview Length**: Control text preview in notifications (10-100 characters)
+- **Spinner Animations**: 8 different paste indicator styles (Circular Progress, Bouncing Dots, Animated Bars, Simple Pulse, Spinning Spiral, Ripple Waves, Grid Matrix, Progress Loader)
+- **Visual Options**: Hide toast notifications or paste spinner completely
 - **Unobtrusive Design**: Clean interface with optional visual feedback
 
 ### 🛡️ Privacy & Control
@@ -47,6 +49,13 @@ Transform your browsing experience with **15+ configurable settings** across **4
 - **Real-time Updates**: Changes apply immediately across all tabs
 - **Accessibility**: Full keyboard navigation and screen reader support
 
+### 🎨 Enhanced UI Design
+- **Custom Checkboxes**: Themed green checkboxes with smooth animations
+- **Modern Dropdowns**: Enhanced styling with custom arrows and shadows
+- **Interactive Sliders**: Progress gradients and responsive hover effects
+- **Consistent Styling**: Unified design language across all form elements
+- **Visual Feedback**: Hover states and micro-interactions for better UX
+
 ## 📱 Settings Categories
 
 ### Basic Settings
@@ -56,17 +65,19 @@ Transform your browsing experience with **15+ configurable settings** across **4
 ### Timing Settings  
 - **Paste Delay** (200-1000ms): Hold duration before pasting
 - **Status Duration** (200-5000ms): How long notifications stay visible
+- **Spinner Delay** (0-500ms): When paste indicator appears
 
 ### Text & Copy Settings
 - **Preview Length** (10-100 chars): Characters shown in notifications
 - **Min Selection** (1-50 chars): Minimum text length to trigger copy
 - **Copy Triggers**: Individual control over mouse, keyboard, and double-click
 - **Smart Features**: Auto-trim whitespace and duplicate prevention
+- **Spinner Style**: Choose from 8 different paste animation styles
 
 ### Advanced Settings
 - **Movement Tolerance** (2-20px): Mouse movement allowed during paste
-- **Spinner Delay** (0-500ms): When paste indicator appears
 - **Notification Position**: Choose corner for displaying notifications
+- **Visual Options**: Hide toast notifications and paste spinner
 - **Website Blacklist**: Domains where extension is disabled
 
 ## 🚀 Installation
@@ -125,6 +136,13 @@ company.workday.com
 - **Lazy initialization**: Fast startup time
 - **Cleanup management**: Prevents memory leaks
 - **Minimal DOM manipulation**: Smooth user experience
+
+### Modern UI Design
+- **CSS Custom Properties**: Theme-consistent styling with green accent color (#4CAF50)
+- **Smooth Animations**: 0.3s transitions for all interactive elements
+- **Custom Form Elements**: Styled checkboxes, dropdowns, and sliders
+- **Responsive Feedback**: Hover states with scale transforms and shadows
+- **Progressive Enhancement**: Graceful fallbacks for older browsers
 
 ### Security & Privacy
 - **Local processing**: All operations happen in your browser
@@ -186,16 +204,19 @@ The extension requires these minimal permissions:
 
 ```
 ├── assets/
-│   └── original-logo.png        # High-resolution source logo
+│   └── icon-full.png           # High-resolution source logo
 ├── icons/
 │   ├── icon16.png              # 16x16 browser icon
 │   ├── icon48.png              # 48x48 extension icon
 │   └── icon128.png             # 128x128 store icon
+├── dist/                       # Build output directory
 ├── content.js                  # Main content script (500+ lines)
 ├── content.css                 # Visual styling
 ├── background.js               # Service worker with default settings
-├── popup.html                  # Settings interface with collapsible sections
+├── popup.html                  # Settings interface with enhanced UI
 ├── popup.js                    # Settings logic with tooltip system (350+ lines)
+├── build.js                    # Node.js build script
+├── package.json                # npm configuration
 └── manifest.json              # Extension configuration
 ```
 
@@ -233,6 +254,10 @@ The extension requires these minimal permissions:
 - **Phase 3**: Professional features with selective triggers, blacklist, and smart features
 - **Tooltip System**: Comprehensive help system with 15+ explanations
 - **UI Overhaul**: Collapsible sections and modern interface design
+- **Enhanced Styling**: Custom checkboxes, dropdowns, and sliders with green theme
+- **Settings Reorganization**: Improved logical grouping of timing vs visual settings
+- **8 Spinner Styles**: Multiple paste animation options for personalization
+- **Build System**: Automated build process with npm integration
 
 ### v1.0 - Foundation Release
 - Initial auto-copy functionality

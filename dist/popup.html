@@ -39,7 +39,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .switch {
@@ -89,8 +89,10 @@
         
         .description {
             font-size: 14px;
-            color: #666;
-            line-height: 1.4;
+            color: #555;
+            line-height: 1.5;
+            font-weight: 400;
+            margin-bottom: 16px;
         }
         
         .status {
@@ -98,10 +100,11 @@
             font-size: 12px;
             color: #4CAF50;
             margin-top: 10px;
+            margin-bottom: 20px;
         }
         
         .slider-container {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .slider-label {
@@ -113,34 +116,66 @@
         }
         
         .slider-value {
-            color: #666;
-            font-size: 12px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 500;
         }
         
         .range-slider {
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #4CAF50 0%, #4CAF50 var(--progress, 0%), #e0e0e0 var(--progress, 0%), #e0e0e0 100%);
             outline: none;
             -webkit-appearance: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        
+        .range-slider:hover {
+            background: linear-gradient(to right, #45a049 0%, #45a049 var(--progress, 0%), #d0d0d0 var(--progress, 0%), #d0d0d0 100%);
         }
         
         .range-slider::-webkit-slider-thumb {
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #4CAF50;
             cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .range-slider::-webkit-slider-thumb:hover {
+            background: #45a049;
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
         }
         
         .range-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #4CAF50;
             cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .range-slider::-moz-range-thumb:hover {
+            background: #45a049;
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+        }
+        
+        .range-slider::-moz-range-track {
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
             border: none;
         }
         
@@ -164,7 +199,7 @@
         }
         
         .dropdown-container {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .dropdown-label {
@@ -176,20 +211,37 @@
         }
         
         .dropdown-select {
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
+            background-color: #fff;
+            border: 2px solid #e0e0e0;
             border-radius: 4px;
-            padding: 6px 8px;
-            font-size: 12px;
+            padding: 8px 12px;
+            font-size: 13px;
             color: #333;
             width: 100%;
             outline: none;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 12px;
+            padding-right: 30px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            box-sizing: border-box;
+        }
+        
+        .dropdown-select:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
         }
         
         .dropdown-select:focus {
             border-color: #4CAF50;
             background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1), 0 2px 8px rgba(76, 175, 80, 0.15);
         }
         
         .collapsible-header {
@@ -234,7 +286,7 @@
         }
         
         .textarea-container {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .textarea-label {
@@ -248,27 +300,40 @@
             width: 100%;
             min-height: 60px;
             max-height: 120px;
-            padding: 8px;
-            border: 1px solid #ddd;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
             font-family: Arial, sans-serif;
             resize: vertical;
             outline: none;
+            background-color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            line-height: 1.4;
+            box-sizing: border-box;
+        }
+        
+        .textarea-input:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
         }
         
         .textarea-input:focus {
             border-color: #4CAF50;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1), 0 2px 8px rgba(76, 175, 80, 0.15);
         }
         
         .textarea-hint {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
+            font-size: 12px;
+            color: #777;
+            margin-top: 6px;
+            line-height: 1.4;
         }
         
         .checkbox-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .checkbox-item {
@@ -276,11 +341,72 @@
             align-items: center;
             margin-bottom: 8px;
             font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        
+        .checkbox-item:hover {
+            background-color: rgba(76, 175, 80, 0.05);
         }
         
         .checkbox-item input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.1);
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .custom-checkbox:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+        }
+        
+        .checkbox-item input[type="checkbox"]:checked + .custom-checkbox {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .checkbox-item input[type="checkbox"]:checked + .custom-checkbox::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 1;
+        }
+        
+        .custom-checkbox::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
         
         /* Tooltip System */
@@ -408,6 +534,14 @@
                 </div>
                 <input type="range" id="statusDurationSlider" class="range-slider" min="200" max="5000" step="200" value="2000">
             </div>
+            
+            <div class="slider-container tooltip-container">
+                <div class="slider-label">
+                    <span class="tooltip-trigger" data-tooltip="When paste indicator appears (0-500ms)">Spinner Delay</span>
+                    <span class="slider-value" id="spinnerDelayValue">100ms</span>
+                </div>
+                <input type="range" id="spinnerDelaySlider" class="range-slider" min="0" max="500" step="25" value="100">
+            </div>
         </div>
     </div>
     
@@ -435,30 +569,51 @@
             
             <div class="checkbox-group">
                 <label class="textarea-label">Copy Triggers:</label>
-                <div class="checkbox-item tooltip-container">
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="mouseSelectionTrigger" checked>
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Copy when text selected with mouse">Mouse Selection</span>
-                </div>
-                <div class="checkbox-item tooltip-container">
+                </label>
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="keyboardSelectionTrigger" checked>
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Copy when text selected with keyboard">Keyboard Selection (Shift+arrows, Ctrl+A)</span>
-                </div>
-                <div class="checkbox-item tooltip-container">
+                </label>
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="doubleClickTrigger" checked>
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Copy when double-clicking words">Double-click Selection</span>
-                </div>
+                </label>
             </div>
             
             <div class="checkbox-group">
                 <label class="textarea-label">Smart Features:</label>
-                <div class="checkbox-item tooltip-container">
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="autoTrimWhitespace" checked>
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Remove extra spaces from copied text">Auto-trim Whitespace</span>
-                </div>
-                <div class="checkbox-item tooltip-container">
+                </label>
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="duplicatePrevention">
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Skip copying identical text twice">Prevent Duplicate Copies</span>
+                </label>
+            </div>
+            
+            <div class="dropdown-container tooltip-container">
+                <div class="dropdown-label">
+                    <span class="tooltip-trigger" data-tooltip="Visual style of the paste spinner animation">Spinner Style</span>
                 </div>
+                <select id="spinnerStyle" class="dropdown-select">
+                    <option value="circular">Circular Progress</option>
+                    <option value="dots">Bouncing Dots</option>
+                    <option value="bars">Animated Bars</option>
+                    <option value="pulse">Simple Pulse</option>
+                    <option value="spiral">Spinning Spiral</option>
+                    <option value="ripple">Ripple Waves</option>
+                    <option value="grid">Grid Matrix</option>
+                    <option value="loader">Progress Loader</option>
+                </select>
             </div>
         </div>
     </div>
@@ -477,14 +632,6 @@
                 <input type="range" id="movementToleranceSlider" class="range-slider" min="2" max="20" step="1" value="8">
             </div>
             
-            <div class="slider-container tooltip-container">
-                <div class="slider-label">
-                    <span class="tooltip-trigger" data-tooltip="When paste indicator appears (0-500ms)">Spinner Delay</span>
-                    <span class="slider-value" id="spinnerDelayValue">100ms</span>
-                </div>
-                <input type="range" id="spinnerDelaySlider" class="range-slider" min="0" max="500" step="25" value="100">
-            </div>
-            
             <div class="dropdown-container tooltip-container">
                 <div class="dropdown-label">
                     <span class="tooltip-trigger" data-tooltip="Corner for showing notifications">Notification Position</span>
@@ -497,32 +644,18 @@
                 </select>
             </div>
             
-            <div class="dropdown-container tooltip-container">
-                <div class="dropdown-label">
-                    <span class="tooltip-trigger" data-tooltip="Visual style of the paste spinner animation">Spinner Style</span>
-                </div>
-                <select id="spinnerStyle" class="dropdown-select">
-                    <option value="circular">Circular Progress</option>
-                    <option value="dots">Bouncing Dots</option>
-                    <option value="bars">Animated Bars</option>
-                    <option value="pulse">Simple Pulse</option>
-                    <option value="spiral">Spinning Spiral</option>
-                    <option value="ripple">Ripple Waves</option>
-                    <option value="grid">Grid Matrix</option>
-                    <option value="loader">Progress Loader</option>
-                </select>
-            </div>
-            
             <div class="checkbox-group">
                 <label class="textarea-label">Visual Options:</label>
-                <div class="checkbox-item tooltip-container">
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="hideToastNotifications">
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Hide copy/paste success notifications">Hide Toast Notifications</span>
-                </div>
-                <div class="checkbox-item tooltip-container">
+                </label>
+                <label class="checkbox-item tooltip-container">
                     <input type="checkbox" id="hidePasteSpinner">
+                    <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Hide circular indicator during paste gestures">Hide Paste Spinner</span>
-                </div>
+                </label>
             </div>
             
             <div class="textarea-container tooltip-container">

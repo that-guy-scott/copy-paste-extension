@@ -1,6 +1,15 @@
-# Auto Copy Selection
-
-A powerful Chrome extension that revolutionizes your copy-paste workflow with automatic text copying, intuitive paste gestures, and comprehensive customization options.
+<div align="center">
+  <img src="assets/icon-full.png" alt="Auto Copy Selection Logo" width="200"/>
+  
+  # Auto Copy Selection
+  
+  [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-brightgreen?style=flat-square&logo=google-chrome)](https://chrome.google.com/webstore)
+  [![Version](https://img.shields.io/badge/version-2.0-blue?style=flat-square)](https://github.com)
+  [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+  [![Made with Love](https://img.shields.io/badge/made%20with-%E2%9D%A4-red?style=flat-square)](https://github.com)
+  
+  A powerful Chrome extension that revolutionizes your copy-paste workflow with automatic text copying, intuitive paste gestures, and comprehensive customization options.
+</div>
 
 ## ✨ Features Overview
 

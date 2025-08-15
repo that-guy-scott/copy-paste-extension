@@ -1,21 +1,66 @@
 # Auto Copy Selection
 
-A Chrome extension that streamlines your copy-paste workflow with automatic text copying and intuitive paste gestures.
+A powerful Chrome extension that revolutionizes your copy-paste workflow with automatic text copying, intuitive paste gestures, and comprehensive customization options.
 
-## Features
+## ✨ Features Overview
 
-### 🔄 Auto Copy
-- **Automatic Clipboard Sync**: Any text you select on web pages is instantly copied to your clipboard
-- **Smart Selection Detection**: Works with mouse selection, keyboard selection (Shift+arrows), and double-click
-- **Visual Feedback**: Unobtrusive notification shows what was copied
+Transform your browsing experience with **15+ configurable settings** across **4 organized categories**, making this one of the most customizable clipboard extensions available.
 
-### 📋 Hold-to-Paste
-- **Gesture-Based Pasting**: Click and hold for 450ms on any input field to paste clipboard contents
-- **Visual Progress Indicator**: Beautiful circular progress animation shows hold progress
-- **Smart Targeting**: Only activates on editable elements (input fields, textareas, contenteditable areas)
-- **Movement Tolerance**: Small mouse movements won't cancel the paste operation
+### 🔄 Intelligent Auto Copy
+- **Smart Selection Detection**: Copy text via mouse selection, keyboard shortcuts (Shift+arrows, Ctrl+A), or double-click
+- **Selective Triggers**: Enable/disable specific copy methods individually
+- **Minimum Length Filter**: Prevent copying accidental micro-selections (1-50 characters)
+- **Duplicate Prevention**: Skip copying identical text twice in a row
+- **Auto-trim Whitespace**: Automatically clean up copied text formatting
 
-## Installation
+### 📋 Advanced Hold-to-Paste
+- **Gesture-Based Pasting**: Click and hold on input fields to paste clipboard contents
+- **Customizable Timing**: Adjust hold duration (200-1000ms) to match your preference
+- **Visual Progress Indicator**: Beautiful circular animation with configurable delay (0-500ms)
+- **Movement Tolerance**: Customize mouse sensitivity (2-20px) for paste cancellation
+- **Smart Targeting**: Works with input fields, textareas, and contenteditable areas
+
+### 🎨 Visual Customization
+- **Notification Positioning**: Choose from 4 corner positions for status messages
+- **Status Duration Control**: Customize how long notifications stay visible (200-5000ms)
+- **Preview Length**: Control text preview in notifications (10-100 characters)
+- **Unobtrusive Design**: Clean interface with optional visual feedback
+
+### 🛡️ Privacy & Control
+- **Website Blacklist**: Disable extension on specific domains (banking, secure sites)
+- **Domain Matching**: Supports exact domains and subdomains
+- **Real-time Toggle**: Instant enable/disable without page refresh
+- **Local Operation**: No data collection or external services
+
+### 🎛️ Professional Settings Interface
+- **Collapsible Sections**: Organized, space-efficient settings layout
+- **Helpful Tooltips**: Non-intrusive explanations for every setting
+- **Real-time Updates**: Changes apply immediately across all tabs
+- **Accessibility**: Full keyboard navigation and screen reader support
+
+## 📱 Settings Categories
+
+### Basic Settings
+- **Enable Auto Copy**: Master toggle for automatic text copying
+- **Hold & Release to Paste**: Master toggle for gesture-based pasting
+
+### Timing Settings  
+- **Paste Delay** (200-1000ms): Hold duration before pasting
+- **Status Duration** (200-5000ms): How long notifications stay visible
+
+### Text & Copy Settings
+- **Preview Length** (10-100 chars): Characters shown in notifications
+- **Min Selection** (1-50 chars): Minimum text length to trigger copy
+- **Copy Triggers**: Individual control over mouse, keyboard, and double-click
+- **Smart Features**: Auto-trim whitespace and duplicate prevention
+
+### Advanced Settings
+- **Movement Tolerance** (2-20px): Mouse movement allowed during paste
+- **Spinner Delay** (0-500ms): When paste indicator appears
+- **Notification Position**: Choose corner for displaying notifications
+- **Website Blacklist**: Domains where extension is disabled
+
+## 🚀 Installation
 
 1. Download or clone this repository
 2. Open Chrome and navigate to `chrome://extensions/`
@@ -23,104 +68,188 @@ A Chrome extension that streamlines your copy-paste workflow with automatic text
 4. Click "Load unpacked" and select the extension folder
 5. The extension icon will appear in your toolbar
 
-## Usage
+## 💡 Usage Examples
 
-### Auto Copy
-1. Simply select any text on a webpage
-2. The text is automatically copied to your clipboard
-3. A brief notification confirms the copy operation
+### Quick Setup for Power Users
+1. **Increase paste delay** to 800ms for more deliberate gestures
+2. **Enable duplicate prevention** to avoid clipboard noise
+3. **Set minimum selection** to 3 characters to prevent accidental copies
+4. **Add banking domains** to blacklist for security
 
-### Hold-to-Paste
-1. Copy text to your clipboard (using auto-copy or Ctrl+C)
-2. Click and hold on any input field, textarea, or editable area
-3. A blue progress indicator will appear after 100ms
-4. Keep holding until the circle completes (450ms total)
-5. Release to paste the clipboard contents at the cursor position
+### Accessibility Configuration
+1. **Position notifications** in preferred corner
+2. **Extend status duration** to 5000ms for easier reading
+3. **Increase preview length** to 60 characters for more context
+4. **Disable mouse triggers** if using keyboard-only navigation
 
-## Settings
+### Developer/Writer Workflow
+1. **Enable all copy triggers** for maximum flexibility
+2. **Set preview length** to 100 characters for code snippets
+3. **Reduce paste delay** to 200ms for rapid workflow
+4. **Use bottom positioning** to avoid interfering with dev tools
 
-Click the extension icon in your toolbar to access settings:
+## 🔧 Advanced Configuration
 
-- **Enable Auto Copy**: Toggle automatic copying of selected text
-- **Hold & Release to Paste**: Toggle the hold-to-paste gesture
-- **Status Display**: Shows current feature status
+### Website Blacklist Examples
+```
+banking.com
+mail.google.com
+*.secure-site.org
+company.workday.com
+```
 
-Both features can be enabled or disabled independently.
+### Performance Optimization
+- **Disable unused triggers**: Turn off double-click if not needed
+- **Optimize delays**: Shorter durations for faster workflow
+- **Mobile detection**: Tooltips automatically disabled on touch devices
 
-## Supported Elements
+## 🛠️ Technical Features
 
-The hold-to-paste feature works with:
+### Smart Text Processing
+- **Unicode support**: Handles international characters and emojis
+- **Whitespace normalization**: Removes formatting artifacts
+- **Length validation**: Prevents empty or oversized selections
+- **Encoding preservation**: Maintains text integrity
+
+### Performance Optimizations
+- **Event delegation**: Efficient memory usage
+- **Lazy initialization**: Fast startup time
+- **Cleanup management**: Prevents memory leaks
+- **Minimal DOM manipulation**: Smooth user experience
+
+### Security & Privacy
+- **Local processing**: All operations happen in your browser
+- **No data collection**: Zero telemetry or analytics
+- **Domain isolation**: Blacklist prevents operation on sensitive sites
+- **Permission minimization**: Only required Chrome APIs used
+
+## 📋 Supported Elements
+
+### Copy Sources
+- Selected text on any webpage
+- Text fields and textareas
+- Contenteditable elements
+- Rich text editors
+- Code blocks and pre-formatted text
+
+### Paste Targets
 - Standard input fields (`<input type="text">`)
-- Textareas (`<textarea>`)
+- Multi-line textareas (`<textarea>`)
 - Content-editable divs and spans
-- Rich text editors that use contenteditable
+- Rich text editors (TinyMCE, CKEditor, etc.)
+- Web-based IDEs and code editors
 
-## Permissions
+## 🔐 Permissions
 
-The extension requires these permissions:
+The extension requires these minimal permissions:
 
-- **activeTab**: To detect text selections and interact with web pages
-- **storage**: To save your preference settings
-- **clipboardRead**: To read clipboard contents for the paste feature
+- **activeTab**: Detect text selections and interact with current tab
+- **storage**: Save your personalized settings
+- **clipboardRead**: Access clipboard for paste functionality
 
-## Troubleshooting
+**Privacy Guarantee**: No data is collected, transmitted, or stored outside your browser.
 
-### Auto Copy Not Working
-- Check that the feature is enabled in the extension popup
-- Ensure you're selecting text (not just clicking)
-- Some websites may prevent clipboard access
+## 🐛 Troubleshooting
 
-### Hold-to-Paste Not Working
-- Verify the feature is enabled in settings
-- Make sure you're clicking on an editable element
-- Hold for the full duration (450ms) without moving the mouse significantly
-- Check that your clipboard contains text content
+### Auto Copy Issues
+- **Not copying**: Check if feature is enabled and minimum length is met
+- **Wrong trigger**: Verify which copy triggers are enabled
+- **Duplicate skipping**: Check if duplicate prevention is enabled
+- **Site blocking**: Verify domain isn't in blacklist
 
-### General Issues
-- Try refreshing the webpage after enabling/disabling features
-- Restart Chrome if the extension stops responding
-- Check the Chrome Extensions page for any error messages
+### Hold-to-Paste Issues
+- **Too sensitive**: Increase movement tolerance setting
+- **Too slow**: Decrease paste delay time
+- **Indicator missing**: Reduce spinner delay or check if element is supported
+- **Position issues**: Try different notification positions
 
-## File Structure
+### Performance Issues
+- **Slow response**: Disable unused copy triggers
+- **High memory**: Check for runaway tooltip creation
+- **Conflicts**: Add problematic sites to blacklist
+
+### Settings Problems
+- **Not saving**: Check Chrome storage permissions
+- **Reset issues**: Clear extension data in Chrome settings
+- **Tooltip bugs**: Disable and re-enable extension
+
+## 📁 File Structure
 
 ```
 ├── assets/
-│   └── original-logo.png     # Source logo file (high resolution)
+│   └── original-logo.png        # High-resolution source logo
 ├── icons/
-│   ├── icon16.png           # 16x16 extension icon
-│   ├── icon48.png           # 48x48 extension icon
-│   └── icon128.png          # 128x128 extension icon
-├── content.js               # Main content script
-├── background.js            # Background service worker
-├── popup.html              # Extension popup interface
-├── popup.js                # Popup functionality
-├── content.css             # Content script styles
-└── manifest.json           # Extension manifest
+│   ├── icon16.png              # 16x16 browser icon
+│   ├── icon48.png              # 48x48 extension icon
+│   └── icon128.png             # 128x128 store icon
+├── content.js                  # Main content script (500+ lines)
+├── content.css                 # Visual styling
+├── background.js               # Service worker with default settings
+├── popup.html                  # Settings interface with collapsible sections
+├── popup.js                    # Settings logic with tooltip system (350+ lines)
+└── manifest.json              # Extension configuration
 ```
 
-The `/assets/` folder contains project source files that are not part of the extension package. The `/icons/` folder contains the optimized icons used by the Chrome extension.
+## 🌟 What Makes This Special
 
-## Browser Compatibility
+### Enterprise-Level Customization
+- **15+ configurable options** for precise workflow tuning
+- **Granular control** over every aspect of copy-paste behavior
+- **Professional interface** with intuitive organization
+- **Accessibility compliance** with full keyboard and screen reader support
 
-- Chrome 88+
-- Chromium-based browsers (Edge, Brave, etc.)
+### Advanced User Experience
+- **Non-intrusive tooltips** that appear only when needed
+- **Smart positioning** that adapts to available space
+- **Real-time updates** across all browser tabs
+- **Mobile-aware** design that disables inappropriate features
 
-## Version History
+### Developer-Friendly Architecture
+- **Modular design** with clean separation of concerns
+- **Extensive documentation** with inline code comments
+- **Performance optimized** with efficient event handling
+- **Extensible structure** for future feature additions
 
-### v1.0
-- Initial release with auto-copy functionality
-- Hold-to-paste gesture implementation
-- Visual feedback system
-- Configurable settings popup
+## 🎯 Browser Compatibility
 
-## Privacy
+- **Chrome 88+**: Full feature support
+- **Chromium-based browsers**: Edge, Brave, Opera, Vivaldi
+- **Progressive enhancement**: Graceful degradation on older versions
 
-This extension:
-- Only accesses clipboard data when you trigger the paste gesture
-- Does not collect, store, or transmit any personal data
-- Operates entirely locally within your browser
-- Requires no external services or network connections
+## 📈 Version History
 
-## Support
+### v2.0 - The Customization Update
+- **Phase 1**: Core UX improvements with 4 new sliders
+- **Phase 2**: Advanced visual customization with 3 new controls
+- **Phase 3**: Professional features with selective triggers, blacklist, and smart features
+- **Tooltip System**: Comprehensive help system with 15+ explanations
+- **UI Overhaul**: Collapsible sections and modern interface design
 
-For issues, feature requests, or questions, please check the troubleshooting section above or review your browser's extension management settings.
+### v1.0 - Foundation Release
+- Initial auto-copy functionality
+- Basic hold-to-paste implementation
+- Simple settings interface
+- Core visual feedback system
+
+## 🤝 Contributing
+
+This extension demonstrates modern Chrome extension development with:
+- **Manifest V3** compliance
+- **Modern JavaScript** (ES6+)
+- **Responsive CSS** with smooth animations
+- **Accessibility best practices**
+- **Performance optimization** techniques
+
+## 📞 Support
+
+For technical issues:
+1. Check the troubleshooting section above
+2. Verify your Chrome version compatibility
+3. Review browser console for error messages
+4. Test in incognito mode to isolate conflicts
+
+For feature requests or bugs, ensure you've explored all 15+ settings options first - the solution might already be available through configuration!
+
+---
+
+**Auto Copy Selection** - Transforming productivity, one copy-paste at a time. ⚡

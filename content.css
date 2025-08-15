@@ -55,12 +55,10 @@
     height: 8px;
     background: #2196F3;
     border-radius: 50%;
-    animation: dotsBounce 1.4s infinite ease-in-out;
+    animation: dotsBounce infinite ease-in-out;
 }
 
-.copy-paste-spinner.dots .dot:nth-child(1) { animation-delay: -0.32s; }
-.copy-paste-spinner.dots .dot:nth-child(2) { animation-delay: -0.16s; }
-.copy-paste-spinner.dots .dot:nth-child(3) { animation-delay: 0s; }
+/* Delays will be set dynamically by JavaScript */
 
 @keyframes dotsBounce {
     0%, 80%, 100% { 
@@ -88,13 +86,10 @@
     height: 24px;
     background: #2196F3;
     border-radius: 2px;
-    animation: barsStretch 1.2s infinite ease-in-out;
+    animation: barsStretch infinite ease-in-out;
 }
 
-.copy-paste-spinner.bars .bar:nth-child(1) { animation-delay: -1.1s; }
-.copy-paste-spinner.bars .bar:nth-child(2) { animation-delay: -1.0s; }
-.copy-paste-spinner.bars .bar:nth-child(3) { animation-delay: -0.9s; }
-.copy-paste-spinner.bars .bar:nth-child(4) { animation-delay: -0.8s; }
+/* Delays will be set dynamically by JavaScript */
 
 @keyframes barsStretch {
     0%, 40%, 100% { 
@@ -112,7 +107,7 @@
     background: linear-gradient(45deg, #2196F3, #1976D2);
     border-radius: 50%;
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-    animation: pulseScale 1s infinite ease-in-out;
+    animation: pulseScale infinite ease-in-out;
 }
 
 .copy-paste-spinner.pulse .pulse-text {
@@ -159,7 +154,7 @@
     border: 3px solid transparent;
     border-radius: 50%;
     border-top: 3px solid #2196F3;
-    animation: spiralSpin 1s linear infinite, spiralColor 2s ease-in-out infinite;
+    animation: spiralSpin 1s linear infinite, spiralColor infinite ease-in-out;
 }
 
 @keyframes spiralSpin {
@@ -187,12 +182,10 @@
     height: 10px;
     border-radius: 50%;
     border: 2px solid #2196F3;
-    animation: rippleExpand 1.5s infinite ease-out;
+    animation: rippleExpand infinite ease-out;
 }
 
-.copy-paste-spinner.ripple .ripple-circle:nth-child(1) { animation-delay: 0s; }
-.copy-paste-spinner.ripple .ripple-circle:nth-child(2) { animation-delay: 0.5s; }
-.copy-paste-spinner.ripple .ripple-circle:nth-child(3) { animation-delay: 1s; }
+/* Delays will be set dynamically by JavaScript */
 
 @keyframes rippleExpand {
     0% { 
@@ -228,18 +221,10 @@
     height: 8px;
     background: #2196F3;
     border-radius: 1px;
-    animation: gridFill 1.8s infinite ease-in-out;
+    animation: gridFill infinite ease-in-out;
 }
 
-.copy-paste-spinner.grid .grid-square:nth-child(1) { animation-delay: 0.0s; }
-.copy-paste-spinner.grid .grid-square:nth-child(2) { animation-delay: 0.2s; }
-.copy-paste-spinner.grid .grid-square:nth-child(3) { animation-delay: 0.4s; }
-.copy-paste-spinner.grid .grid-square:nth-child(4) { animation-delay: 0.6s; }
-.copy-paste-spinner.grid .grid-square:nth-child(5) { animation-delay: 0.8s; }
-.copy-paste-spinner.grid .grid-square:nth-child(6) { animation-delay: 1.0s; }
-.copy-paste-spinner.grid .grid-square:nth-child(7) { animation-delay: 1.2s; }
-.copy-paste-spinner.grid .grid-square:nth-child(8) { animation-delay: 1.4s; }
-.copy-paste-spinner.grid .grid-square:nth-child(9) { animation-delay: 1.6s; }
+/* Delays will be set dynamically by JavaScript */
 
 @keyframes gridFill {
     0%, 70%, 100% { 
@@ -277,7 +262,7 @@
     width: 0%;
     background: linear-gradient(90deg, #2196F3, #4CAF50);
     border-radius: 3px;
-    animation: loaderFill 1.5s ease-in-out infinite;
+    animation: loaderFill ease-in-out infinite;
 }
 
 .copy-paste-spinner.loader .loader-text {

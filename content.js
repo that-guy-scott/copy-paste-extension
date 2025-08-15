@@ -89,6 +89,7 @@
         }
         if (changes.pasteDelay) {
             HOLD_DURATION = changes.pasteDelay.newValue;
+            updateSpinnerTiming();
         }
         if (changes.statusDuration) {
             STATUS_DURATION = changes.statusDuration.newValue;
@@ -310,6 +311,7 @@
         }
         
         document.body.appendChild(pasteIndicator);
+        updateSpinnerTiming();
     }
     
     function recreatePasteIndicator() {
@@ -318,6 +320,59 @@
             pasteIndicator = null;
         }
         createPasteIndicator();
+    }
+    
+    function updateSpinnerTiming() {
+        if (!pasteIndicator) return;
+        
+        const duration = HOLD_DURATION + 'ms';
+        
+        // Update spinner element animations based on type
+        if (SPINNER_STYLE === 'circular') {
+            // Circular spinner timing is handled in animateProgress() function
+            // No CSS animations to update for circular spinner
+        } else if (SPINNER_STYLE === 'dots') {
+            const dots = pasteIndicator.querySelectorAll('.dot');
+            const delays = [-0.7, -0.35, 0]; // Proportional to duration
+            dots.forEach((dot, index) => {
+                dot.style.animationDuration = duration;
+                dot.style.animationDelay = (HOLD_DURATION * delays[index]) + 'ms';
+            });
+        } else if (SPINNER_STYLE === 'bars') {
+            const bars = pasteIndicator.querySelectorAll('.bar');
+            const delays = [-0.8, -0.6, -0.4, -0.2]; // Proportional to duration
+            bars.forEach((bar, index) => {
+                bar.style.animationDuration = duration;
+                bar.style.animationDelay = (HOLD_DURATION * delays[index]) + 'ms';
+            });
+        } else if (SPINNER_STYLE === 'pulse') {
+            pasteIndicator.style.animationDuration = duration;
+        } else if (SPINNER_STYLE === 'spiral') {
+            const spiralLine = pasteIndicator.querySelector('.spiral-line');
+            if (spiralLine) {
+                // Keep spin fast, sync color transition to hold duration
+                spiralLine.style.animationDuration = '1s, ' + duration;
+            }
+        } else if (SPINNER_STYLE === 'ripple') {
+            const circles = pasteIndicator.querySelectorAll('.ripple-circle');
+            const delays = [0, 0.33, 0.66]; // Proportional to duration
+            circles.forEach((circle, index) => {
+                circle.style.animationDuration = duration;
+                circle.style.animationDelay = (HOLD_DURATION * delays[index]) + 'ms';
+            });
+        } else if (SPINNER_STYLE === 'grid') {
+            const squares = pasteIndicator.querySelectorAll('.grid-square');
+            const delays = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]; // Proportional to duration
+            squares.forEach((square, index) => {
+                square.style.animationDuration = duration;
+                square.style.animationDelay = (HOLD_DURATION * delays[index]) + 'ms';
+            });
+        } else if (SPINNER_STYLE === 'loader') {
+            const loaderFill = pasteIndicator.querySelector('.loader-fill');
+            if (loaderFill) {
+                loaderFill.style.animationDuration = duration;
+            }
+        }
     }
     
     function showStatus(message) {

@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         updateStatus(copyToggle.checked, pasteToggle.checked);
         initializeCollapsible();
+        initializeTooltips();
     });
     
     copyToggle.addEventListener('change', function() {
@@ -215,5 +216,196 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+    }
+    
+    function initializeTooltips() {
+        // Check if we're on a touch device
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (isTouchDevice) {
+            // Disable tooltips on touch devices
+            return;
+        }
+        
+        let currentTooltip = null;
+        let showTimeout = null;
+        let hideTimeout = null;
+        
+        // Get all tooltip triggers
+        const triggers = document.querySelectorAll('.tooltip-trigger');
+        
+        triggers.forEach(trigger => {
+            const tooltipText = trigger.getAttribute('data-tooltip');
+            if (!tooltipText) return;
+            
+            // Create tooltip element
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.innerHTML = tooltipText;
+            document.body.appendChild(tooltip);
+            
+            // Mouse enter event
+            trigger.addEventListener('mouseenter', function(e) {
+                // Cancel any pending hide
+                if (hideTimeout) {
+                    clearTimeout(hideTimeout);
+                    hideTimeout = null;
+                }
+                
+                // Hide any existing tooltip
+                hideCurrentTooltip();
+                
+                // Set up show timeout
+                showTimeout = setTimeout(() => {
+                    showTooltip(tooltip, trigger);
+                    currentTooltip = tooltip;
+                }, 800); // 800ms delay as specified
+            });
+            
+            // Mouse leave event
+            trigger.addEventListener('mouseleave', function() {
+                // Cancel pending show
+                if (showTimeout) {
+                    clearTimeout(showTimeout);
+                    showTimeout = null;
+                }
+                
+                // Hide tooltip immediately
+                hideCurrentTooltip();
+            });
+            
+            // Focus event for keyboard accessibility
+            trigger.addEventListener('focus', function() {
+                if (showTimeout) {
+                    clearTimeout(showTimeout);
+                }
+                hideCurrentTooltip();
+                showTooltip(tooltip, trigger);
+                currentTooltip = tooltip;
+            });
+            
+            // Blur event for keyboard accessibility
+            trigger.addEventListener('blur', function() {
+                hideCurrentTooltip();
+            });
+        });
+        
+        // Global event listeners for interaction cancellation
+        document.addEventListener('scroll', hideCurrentTooltip, true);
+        document.addEventListener('click', hideCurrentTooltip, true);
+        document.addEventListener('keydown', hideCurrentTooltip, true);
+        
+        // Hide tooltip when collapsible sections are toggled
+        const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+        collapsibleHeaders.forEach(header => {
+            header.addEventListener('click', hideCurrentTooltip);
+        });
+        
+        function showTooltip(tooltip, trigger) {
+            // Position the tooltip
+            positionTooltip(tooltip, trigger);
+            
+            // Show the tooltip
+            tooltip.classList.add('show');
+        }
+        
+        function hideCurrentTooltip() {
+            if (showTimeout) {
+                clearTimeout(showTimeout);
+                showTimeout = null;
+            }
+            
+            if (currentTooltip) {
+                currentTooltip.classList.remove('show');
+                currentTooltip.classList.remove('above', 'below', 'left', 'right');
+                currentTooltip.style.top = '';
+                currentTooltip.style.left = '';
+                currentTooltip = null;
+            }
+        }
+        
+        // Cleanup function to remove all tooltips when popup closes
+        window.addEventListener('beforeunload', function() {
+            const tooltips = document.querySelectorAll('.tooltip');
+            tooltips.forEach(tooltip => tooltip.remove());
+        });
+        
+        function positionTooltip(tooltip, trigger) {
+            const triggerRect = trigger.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Reset position classes and styles
+            tooltip.classList.remove('above', 'below', 'left', 'right');
+            tooltip.style.top = '';
+            tooltip.style.left = '';
+            tooltip.style.right = '';
+            tooltip.style.bottom = '';
+            
+            // Make tooltip visible to calculate its dimensions
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '1';
+            
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const tooltipWidth = tooltipRect.width;
+            const tooltipHeight = tooltipRect.height;
+            
+            // Hide tooltip again
+            tooltip.style.opacity = '0';
+            tooltip.style.visibility = 'visible';
+            
+            // Calculate available space
+            const spaceAbove = triggerRect.top;
+            const spaceBelow = viewportHeight - triggerRect.bottom;
+            const spaceLeft = triggerRect.left;
+            const spaceRight = viewportWidth - triggerRect.right;
+            
+            let top, left;
+            
+            // Determine position - prefer above, then below, then sides
+            if (spaceAbove >= tooltipHeight + 10) {
+                // Position above
+                tooltip.classList.add('above');
+                top = triggerRect.top - tooltipHeight - 8;
+                left = triggerRect.left + (triggerRect.width / 2) - (tooltipWidth / 2);
+            } else if (spaceBelow >= tooltipHeight + 10) {
+                // Position below
+                tooltip.classList.add('below');
+                top = triggerRect.bottom + 8;
+                left = triggerRect.left + (triggerRect.width / 2) - (tooltipWidth / 2);
+            } else if (spaceLeft >= tooltipWidth + 10) {
+                // Position left
+                tooltip.classList.add('left');
+                top = triggerRect.top + (triggerRect.height / 2) - (tooltipHeight / 2);
+                left = triggerRect.left - tooltipWidth - 8;
+            } else if (spaceRight >= tooltipWidth + 10) {
+                // Position right
+                tooltip.classList.add('right');
+                top = triggerRect.top + (triggerRect.height / 2) - (tooltipHeight / 2);
+                left = triggerRect.right + 8;
+            } else {
+                // Fallback to below with edge adjustment
+                tooltip.classList.add('below');
+                top = triggerRect.bottom + 8;
+                left = triggerRect.left + (triggerRect.width / 2) - (tooltipWidth / 2);
+            }
+            
+            // Ensure tooltip stays within viewport bounds
+            if (left < 8) {
+                left = 8;
+            } else if (left + tooltipWidth > viewportWidth - 8) {
+                left = viewportWidth - tooltipWidth - 8;
+            }
+            
+            if (top < 8) {
+                top = 8;
+            } else if (top + tooltipHeight > viewportHeight - 8) {
+                top = viewportHeight - tooltipHeight - 8;
+            }
+            
+            // Apply final position
+            tooltip.style.top = top + 'px';
+            tooltip.style.left = left + 'px';
+        }
     }
 });

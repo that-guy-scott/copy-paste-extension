@@ -263,6 +263,79 @@
             margin-right: 8px;
             transform: scale(1.1);
         }
+        
+        /* Tooltip System */
+        .tooltip-container {
+            position: relative;
+        }
+        
+        .tooltip-trigger {
+            cursor: help;
+            transition: background-color 0.2s ease;
+        }
+        
+        .tooltip-trigger:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: 2px;
+        }
+        
+        .tooltip {
+            position: fixed !important;
+            background-color: #333 !important;
+            color: white !important;
+            padding: 8px 10px !important;
+            border-radius: 4px !important;
+            font-size: 12px !important;
+            line-height: 1.3 !important;
+            max-width: 200px !important;
+            word-wrap: break-word !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+            z-index: 2147483647 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.2s ease, visibility 0.2s ease !important;
+            pointer-events: none !important;
+        }
+        
+        .tooltip.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            border: 5px solid transparent;
+        }
+        
+        /* Arrow positioning will be handled by JavaScript */
+        .tooltip.above::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: #333;
+        }
+        
+        .tooltip.below::before {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: #333;
+        }
+        
+        .tooltip.left::before {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: #333;
+        }
+        
+        .tooltip.right::before {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: #333;
+        }
     </style>
 </head>
 <body>
@@ -276,16 +349,16 @@
             <span class="collapsible-arrow">▼</span>
         </div>
         <div class="collapsible-content" id="basic-settings">
-            <div class="toggle-container">
-                <span>Enable Auto Copy</span>
+            <div class="toggle-container tooltip-container">
+                <span class="tooltip-trigger" data-tooltip="Automatically copy highlighted text to clipboard">Enable Auto Copy</span>
                 <label class="switch">
                     <input type="checkbox" id="enableToggle">
                     <span class="slider"></span>
                 </label>
             </div>
             
-            <div class="toggle-container">
-                <span>Hold & Release to Paste</span>
+            <div class="toggle-container tooltip-container">
+                <span class="tooltip-trigger" data-tooltip="Hold mouse on input fields to paste">Hold & Release to Paste</span>
                 <label class="switch">
                     <input type="checkbox" id="pasteToggle">
                     <span class="slider"></span>
@@ -300,17 +373,17 @@
             <span class="collapsible-arrow">▼</span>
         </div>
         <div class="collapsible-content" id="timing-settings">
-            <div class="slider-container">
+            <div class="slider-container tooltip-container">
                 <div class="slider-label">
-                    <span>Paste Delay</span>
+                    <span class="tooltip-trigger" data-tooltip="Hold duration before pasting (200-1000ms)">Paste Delay</span>
                     <span class="slider-value" id="delayValue">450ms</span>
                 </div>
                 <input type="range" id="delaySlider" class="range-slider" min="200" max="1000" step="50" value="450">
             </div>
             
-            <div class="slider-container">
+            <div class="slider-container tooltip-container">
                 <div class="slider-label">
-                    <span>Status Duration</span>
+                    <span class="tooltip-trigger" data-tooltip="How long notifications stay visible">Status Duration</span>
                     <span class="slider-value" id="statusDurationValue">2000ms</span>
                 </div>
                 <input type="range" id="statusDurationSlider" class="range-slider" min="200" max="5000" step="200" value="2000">
@@ -324,17 +397,17 @@
             <span class="collapsible-arrow">▼</span>
         </div>
         <div class="collapsible-content" id="text-settings">
-            <div class="slider-container">
+            <div class="slider-container tooltip-container">
                 <div class="slider-label">
-                    <span>Preview Length</span>
+                    <span class="tooltip-trigger" data-tooltip="Characters shown in notifications (10-100)">Preview Length</span>
                     <span class="slider-value" id="previewLengthValue">30 chars</span>
                 </div>
                 <input type="range" id="previewLengthSlider" class="range-slider" min="10" max="100" step="5" value="30">
             </div>
             
-            <div class="slider-container">
+            <div class="slider-container tooltip-container">
                 <div class="slider-label">
-                    <span>Min Selection</span>
+                    <span class="tooltip-trigger" data-tooltip="Minimum text length to trigger copy (1-50)">Min Selection</span>
                     <span class="slider-value" id="minSelectionValue">1 char</span>
                 </div>
                 <input type="range" id="minSelectionSlider" class="range-slider" min="1" max="50" step="1" value="1">
@@ -342,29 +415,29 @@
             
             <div class="checkbox-group">
                 <label class="textarea-label">Copy Triggers:</label>
-                <div class="checkbox-item">
+                <div class="checkbox-item tooltip-container">
                     <input type="checkbox" id="mouseSelectionTrigger" checked>
-                    <span>Mouse Selection</span>
+                    <span class="tooltip-trigger" data-tooltip="Copy when text selected with mouse">Mouse Selection</span>
                 </div>
-                <div class="checkbox-item">
+                <div class="checkbox-item tooltip-container">
                     <input type="checkbox" id="keyboardSelectionTrigger" checked>
-                    <span>Keyboard Selection (Shift+arrows, Ctrl+A)</span>
+                    <span class="tooltip-trigger" data-tooltip="Copy when text selected with keyboard">Keyboard Selection (Shift+arrows, Ctrl+A)</span>
                 </div>
-                <div class="checkbox-item">
+                <div class="checkbox-item tooltip-container">
                     <input type="checkbox" id="doubleClickTrigger" checked>
-                    <span>Double-click Selection</span>
+                    <span class="tooltip-trigger" data-tooltip="Copy when double-clicking words">Double-click Selection</span>
                 </div>
             </div>
             
             <div class="checkbox-group">
                 <label class="textarea-label">Smart Features:</label>
-                <div class="checkbox-item">
+                <div class="checkbox-item tooltip-container">
                     <input type="checkbox" id="autoTrimWhitespace" checked>
-                    <span>Auto-trim Whitespace</span>
+                    <span class="tooltip-trigger" data-tooltip="Remove extra spaces from copied text">Auto-trim Whitespace</span>
                 </div>
-                <div class="checkbox-item">
+                <div class="checkbox-item tooltip-container">
                     <input type="checkbox" id="duplicatePrevention">
-                    <span>Prevent Duplicate Copies</span>
+                    <span class="tooltip-trigger" data-tooltip="Skip copying identical text twice">Prevent Duplicate Copies</span>
                 </div>
             </div>
         </div>
@@ -376,25 +449,25 @@
             <span class="collapsible-arrow">▼</span>
         </div>
         <div class="collapsible-content" id="advanced-settings">
-            <div class="slider-container">
+            <div class="slider-container tooltip-container">
                 <div class="slider-label">
-                    <span>Movement Tolerance</span>
+                    <span class="tooltip-trigger" data-tooltip="Mouse movement allowed during paste (2-20px)">Movement Tolerance</span>
                     <span class="slider-value" id="movementToleranceValue">8px</span>
                 </div>
                 <input type="range" id="movementToleranceSlider" class="range-slider" min="2" max="20" step="1" value="8">
             </div>
             
-            <div class="slider-container">
+            <div class="slider-container tooltip-container">
                 <div class="slider-label">
-                    <span>Spinner Delay</span>
+                    <span class="tooltip-trigger" data-tooltip="When paste indicator appears (0-500ms)">Spinner Delay</span>
                     <span class="slider-value" id="spinnerDelayValue">100ms</span>
                 </div>
                 <input type="range" id="spinnerDelaySlider" class="range-slider" min="0" max="500" step="25" value="100">
             </div>
             
-            <div class="dropdown-container">
+            <div class="dropdown-container tooltip-container">
                 <div class="dropdown-label">
-                    <span>Notification Position</span>
+                    <span class="tooltip-trigger" data-tooltip="Corner for showing notifications">Notification Position</span>
                 </div>
                 <select id="notificationPosition" class="dropdown-select">
                     <option value="top-right">Top Right</option>
@@ -404,8 +477,8 @@
                 </select>
             </div>
             
-            <div class="textarea-container">
-                <label class="textarea-label">Website Blacklist:</label>
+            <div class="textarea-container tooltip-container">
+                <label class="textarea-label tooltip-trigger" data-tooltip="Domains where extension is disabled<br>Enter one per line (e.g., banking.com)">Website Blacklist:</label>
                 <textarea id="websiteBlacklist" class="textarea-input" placeholder="example.com&#10;mail.google.com&#10;secure-site.org"></textarea>
                 <div class="textarea-hint">Enter domains (one per line) where the extension should be disabled</div>
             </div>

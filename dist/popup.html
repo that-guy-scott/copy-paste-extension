@@ -86,6 +86,10 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+
+        input:focus-visible + .slider {
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
         
         .description {
             font-size: 14px;
@@ -154,6 +158,11 @@
             transform: scale(1.1);
             box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
         }
+
+        .range-slider::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+        }
         
         .range-slider::-moz-range-thumb {
             width: 20px;
@@ -170,6 +179,11 @@
             background: #45a049;
             transform: scale(1.1);
             box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+        }
+
+        .range-slider::-moz-range-thumb:active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
         }
         
         .range-slider::-moz-range-track {
@@ -253,7 +267,21 @@
             border-bottom: 2px solid #4CAF50;
             margin-bottom: 15px;
         }
-        
+
+        button.collapsible-header {
+            background: none;
+            border: none;
+            border-bottom: 2px solid #4CAF50;
+            width: 100%;
+            font: inherit;
+            outline: none;
+        }
+
+        button.collapsible-header:focus-visible {
+            outline: 2px solid #4CAF50;
+            outline-offset: 2px;
+        }
+
         .collapsible-header:hover {
             background-color: #f9f9f9;
         }
@@ -490,15 +518,15 @@
     </div>
     
     <div class="settings-section">
-        <div class="collapsible-header" data-target="basic-settings">
+        <button type="button" class="collapsible-header" data-target="basic-settings" aria-expanded="true">
             <span class="collapsible-title">Basic Settings</span>
             <span class="collapsible-arrow">▼</span>
-        </div>
+        </button>
         <div class="collapsible-content" id="basic-settings">
             <div class="toggle-container tooltip-container">
                 <span class="tooltip-trigger" data-tooltip="Automatically copy highlighted text to clipboard">Enable Auto Copy</span>
                 <label class="switch">
-                    <input type="checkbox" id="enableToggle">
+                    <input type="checkbox" id="enableToggle" aria-label="Enable Auto Copy">
                     <span class="slider"></span>
                 </label>
             </div>
@@ -506,7 +534,7 @@
             <div class="toggle-container tooltip-container">
                 <span class="tooltip-trigger" data-tooltip="Hold mouse on input fields to paste">Hold & Release to Paste</span>
                 <label class="switch">
-                    <input type="checkbox" id="pasteToggle">
+                    <input type="checkbox" id="pasteToggle" aria-label="Hold and Release to Paste">
                     <span class="slider"></span>
                 </label>
             </div>
@@ -514,17 +542,17 @@
     </div>
     
     <div class="settings-section">
-        <div class="collapsible-header" data-target="timing-settings">
+        <button type="button" class="collapsible-header" data-target="timing-settings" aria-expanded="true">
             <span class="collapsible-title">Timing Settings</span>
             <span class="collapsible-arrow">▼</span>
-        </div>
+        </button>
         <div class="collapsible-content" id="timing-settings">
             <div class="slider-container tooltip-container">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="Hold duration before pasting (200-1000ms)">Paste Delay</span>
                     <span class="slider-value" id="delayValue">450ms</span>
                 </div>
-                <input type="range" id="delaySlider" class="range-slider" min="200" max="1000" step="50" value="450">
+                <input type="range" id="delaySlider" class="range-slider" min="200" max="1000" step="50" value="450" aria-label="Paste Delay">
             </div>
             
             <div class="slider-container tooltip-container">
@@ -532,7 +560,7 @@
                     <span class="tooltip-trigger" data-tooltip="How long notifications stay visible">Status Duration</span>
                     <span class="slider-value" id="statusDurationValue">2000ms</span>
                 </div>
-                <input type="range" id="statusDurationSlider" class="range-slider" min="200" max="5000" step="200" value="2000">
+                <input type="range" id="statusDurationSlider" class="range-slider" min="200" max="5000" step="200" value="2000" aria-label="Status Duration">
             </div>
             
             <div class="slider-container tooltip-container">
@@ -540,23 +568,23 @@
                     <span class="tooltip-trigger" data-tooltip="When paste indicator appears (0-500ms)">Spinner Delay</span>
                     <span class="slider-value" id="spinnerDelayValue">100ms</span>
                 </div>
-                <input type="range" id="spinnerDelaySlider" class="range-slider" min="0" max="500" step="25" value="100">
+                <input type="range" id="spinnerDelaySlider" class="range-slider" min="0" max="500" step="25" value="100" aria-label="Spinner Delay">
             </div>
         </div>
     </div>
     
     <div class="settings-section">
-        <div class="collapsible-header" data-target="text-settings">
+        <button type="button" class="collapsible-header" data-target="text-settings" aria-expanded="true">
             <span class="collapsible-title">Text & Copy Settings</span>
             <span class="collapsible-arrow">▼</span>
-        </div>
+        </button>
         <div class="collapsible-content" id="text-settings">
             <div class="slider-container tooltip-container">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="Characters shown in notifications (10-100)">Preview Length</span>
                     <span class="slider-value" id="previewLengthValue">30 chars</span>
                 </div>
-                <input type="range" id="previewLengthSlider" class="range-slider" min="10" max="100" step="5" value="30">
+                <input type="range" id="previewLengthSlider" class="range-slider" min="10" max="100" step="5" value="30" aria-label="Preview Length">
             </div>
             
             <div class="slider-container tooltip-container">
@@ -564,7 +592,7 @@
                     <span class="tooltip-trigger" data-tooltip="Minimum text length to trigger copy (1-50)">Min Selection</span>
                     <span class="slider-value" id="minSelectionValue">1 char</span>
                 </div>
-                <input type="range" id="minSelectionSlider" class="range-slider" min="1" max="50" step="1" value="1">
+                <input type="range" id="minSelectionSlider" class="range-slider" min="1" max="50" step="1" value="1" aria-label="Minimum Selection Length">
             </div>
             
             <div class="checkbox-group">
@@ -619,17 +647,17 @@
     </div>
     
     <div class="settings-section">
-        <div class="collapsible-header" data-target="advanced-settings">
+        <button type="button" class="collapsible-header" data-target="advanced-settings" aria-expanded="true">
             <span class="collapsible-title">Advanced Settings</span>
             <span class="collapsible-arrow">▼</span>
-        </div>
+        </button>
         <div class="collapsible-content" id="advanced-settings">
             <div class="slider-container tooltip-container">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="Mouse movement allowed during paste (2-20px)">Movement Tolerance</span>
                     <span class="slider-value" id="movementToleranceValue">8px</span>
                 </div>
-                <input type="range" id="movementToleranceSlider" class="range-slider" min="2" max="20" step="1" value="8">
+                <input type="range" id="movementToleranceSlider" class="range-slider" min="2" max="20" step="1" value="8" aria-label="Movement Tolerance">
             </div>
             
             <div class="dropdown-container tooltip-container">

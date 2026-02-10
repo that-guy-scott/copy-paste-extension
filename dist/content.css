@@ -44,7 +44,6 @@
 
 /* Dots Spinner */
 .copy-paste-spinner.dots {
-    display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
@@ -75,7 +74,6 @@
 
 /* Bars Spinner */
 .copy-paste-spinner.bars {
-    display: flex;
     align-items: center;
     justify-content: center;
     gap: 3px;
@@ -143,7 +141,6 @@
 
 /* Spiral Spinner */
 .copy-paste-spinner.spiral {
-    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -170,7 +167,6 @@
 
 /* Ripple Spinner */
 .copy-paste-spinner.ripple {
-    display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
@@ -207,7 +203,6 @@
 
 /* Grid Spinner */
 .copy-paste-spinner.grid {
-    display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     gap: 3px;
@@ -241,11 +236,12 @@
 
 /* Loader Spinner */
 .copy-paste-spinner.loader {
-    display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     gap: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
 }
 
 .copy-paste-spinner.loader .loader-bar {
@@ -278,4 +274,11 @@
     0% { width: 0%; }
     50% { width: 100%; }
     100% { width: 0%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .copy-paste-spinner, .copy-paste-spinner * {
+        animation: none !important;
+        transition: none !important;
+    }
 }

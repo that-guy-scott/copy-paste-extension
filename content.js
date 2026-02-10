@@ -1,10 +1,14 @@
 (function() {
     'use strict';
     
+    const BLUE = { r: 33, g: 150, b: 243 };
+    const GREEN = { r: 76, g: 175, b: 80 };
+
     let isEnabled = true;
     let isSelecting = false;
     let selectionTimeout;
     let statusElement = null;
+    let statusTimeout = null;
     let isPasteEnabled = true;
     let holdTimer = null;
     let holdStartTime = 0;
@@ -53,14 +57,19 @@
         'smartReplaceEnabled',
         'websiteBlacklist'
     ], function(result) {
+        if (chrome.runtime.lastError) {
+            console.error('Failed to load settings:', chrome.runtime.lastError.message);
+            return;
+        }
         isEnabled = result.autoCopyEnabled !== false;
         isPasteEnabled = result.holdPasteEnabled !== false;
-        HOLD_DURATION = result.pasteDelay || 450;
-        STATUS_DURATION = result.statusDuration || 2000;
-        PREVIEW_LENGTH = result.previewLength || 30;
-        MIN_SELECTION_LENGTH = result.minSelectionLength || 1;
-        MOVEMENT_TOLERANCE = result.movementTolerance || 8;
-        SPINNER_DELAY = result.spinnerDelay || 100;
+        HOLD_DURATION = result.pasteDelay ?? 450;
+        STATUS_DURATION = result.statusDuration ?? 2000;
+        PREVIEW_LENGTH = result.previewLength ?? 30;
+        MIN_SELECTION_LENGTH = result.minSelectionLength ?? 1;
+        MOVEMENT_TOLERANCE = result.movementTolerance ?? 8;
+        SPINNER_DELAY = result.spinnerDelay ?? 100;
+        SPINNER_DELAY = Math.min(SPINNER_DELAY, HOLD_DURATION - 50);
         NOTIFICATION_POSITION = result.notificationPosition || 'top-right';
         MOUSE_SELECTION_ENABLED = result.mouseSelectionEnabled !== false;
         KEYBOARD_SELECTION_ENABLED = result.keyboardSelectionEnabled !== false;
@@ -73,90 +82,43 @@
         SMART_REPLACE_ENABLED = result.smartReplaceEnabled === true;
         WEBSITE_BLACKLIST = result.websiteBlacklist || '';
         
-        console.log('Extension settings loaded:', {
-            isEnabled: isEnabled,
-            isBlacklisted: isCurrentSiteBlacklisted(),
-            HIDE_TOAST_NOTIFICATIONS: HIDE_TOAST_NOTIFICATIONS
-        });
-        
         if (isEnabled && !isCurrentSiteBlacklisted()) {
             initializeAutoCopy();
-        } else {
-            console.log('Extension not initialized:', { isEnabled, isBlacklisted: isCurrentSiteBlacklisted() });
         }
     });
     
+    const settingsMap = {
+        holdPasteEnabled: v => isPasteEnabled = v,
+        pasteDelay: v => { HOLD_DURATION = v; SPINNER_DELAY = Math.min(SPINNER_DELAY, HOLD_DURATION - 50); updateSpinnerTiming(); },
+        statusDuration: v => STATUS_DURATION = v,
+        previewLength: v => PREVIEW_LENGTH = v,
+        minSelectionLength: v => MIN_SELECTION_LENGTH = v,
+        movementTolerance: v => MOVEMENT_TOLERANCE = v,
+        spinnerDelay: v => { SPINNER_DELAY = Math.min(v, HOLD_DURATION - 50); },
+        notificationPosition: v => { NOTIFICATION_POSITION = v; updateStatusElementPosition(); },
+        mouseSelectionEnabled: v => MOUSE_SELECTION_ENABLED = v,
+        keyboardSelectionEnabled: v => KEYBOARD_SELECTION_ENABLED = v,
+        doubleClickEnabled: v => DOUBLE_CLICK_ENABLED = v,
+        autoTrimEnabled: v => AUTO_TRIM_ENABLED = v,
+        duplicatePreventionEnabled: v => DUPLICATE_PREVENTION_ENABLED = v,
+        hideToastNotifications: v => HIDE_TOAST_NOTIFICATIONS = v,
+        hidePasteSpinner: v => HIDE_PASTE_SPINNER = v,
+        spinnerStyle: v => { SPINNER_STYLE = v; recreatePasteIndicator(); },
+        smartReplaceEnabled: v => SMART_REPLACE_ENABLED = v,
+    };
+
     chrome.storage.onChanged.addListener(function(changes, namespace) {
+        for (const [key, setter] of Object.entries(settingsMap)) {
+            if (changes[key]) setter(changes[key].newValue);
+        }
         if (changes.autoCopyEnabled) {
             isEnabled = changes.autoCopyEnabled.newValue;
-            if (isEnabled) {
-                initializeAutoCopy();
-            } else {
-                removeEventListeners();
-            }
-        }
-        if (changes.holdPasteEnabled) {
-            isPasteEnabled = changes.holdPasteEnabled.newValue;
-        }
-        if (changes.pasteDelay) {
-            HOLD_DURATION = changes.pasteDelay.newValue;
-            updateSpinnerTiming();
-        }
-        if (changes.statusDuration) {
-            STATUS_DURATION = changes.statusDuration.newValue;
-        }
-        if (changes.previewLength) {
-            PREVIEW_LENGTH = changes.previewLength.newValue;
-        }
-        if (changes.minSelectionLength) {
-            MIN_SELECTION_LENGTH = changes.minSelectionLength.newValue;
-        }
-        if (changes.movementTolerance) {
-            MOVEMENT_TOLERANCE = changes.movementTolerance.newValue;
-        }
-        if (changes.spinnerDelay) {
-            SPINNER_DELAY = changes.spinnerDelay.newValue;
-        }
-        if (changes.notificationPosition) {
-            NOTIFICATION_POSITION = changes.notificationPosition.newValue;
-            updateStatusElementPosition();
-        }
-        if (changes.mouseSelectionEnabled) {
-            MOUSE_SELECTION_ENABLED = changes.mouseSelectionEnabled.newValue;
-        }
-        if (changes.keyboardSelectionEnabled) {
-            KEYBOARD_SELECTION_ENABLED = changes.keyboardSelectionEnabled.newValue;
-        }
-        if (changes.doubleClickEnabled) {
-            DOUBLE_CLICK_ENABLED = changes.doubleClickEnabled.newValue;
-        }
-        if (changes.autoTrimEnabled) {
-            AUTO_TRIM_ENABLED = changes.autoTrimEnabled.newValue;
-        }
-        if (changes.duplicatePreventionEnabled) {
-            DUPLICATE_PREVENTION_ENABLED = changes.duplicatePreventionEnabled.newValue;
-        }
-        if (changes.hideToastNotifications) {
-            HIDE_TOAST_NOTIFICATIONS = changes.hideToastNotifications.newValue;
-        }
-        if (changes.hidePasteSpinner) {
-            HIDE_PASTE_SPINNER = changes.hidePasteSpinner.newValue;
-        }
-        if (changes.spinnerStyle) {
-            SPINNER_STYLE = changes.spinnerStyle.newValue;
-            recreatePasteIndicator();
-        }
-        if (changes.smartReplaceEnabled) {
-            SMART_REPLACE_ENABLED = changes.smartReplaceEnabled.newValue;
+            if (isEnabled) { initializeAutoCopy(); } else { removeEventListeners(); }
         }
         if (changes.websiteBlacklist) {
             WEBSITE_BLACKLIST = changes.websiteBlacklist.newValue;
-            // Check if current site should be disabled
-            if (isCurrentSiteBlacklisted()) {
-                removeEventListeners();
-            } else if (isEnabled) {
-                initializeAutoCopy();
-            }
+            if (isCurrentSiteBlacklisted()) { removeEventListeners(); }
+            else if (isEnabled) { initializeAutoCopy(); }
         }
     });
     
@@ -165,9 +127,9 @@
             return false;
         }
         
-        const currentDomain = window.location.hostname;
+        const currentDomain = window.location.hostname.toLowerCase();
         const blacklistedDomains = WEBSITE_BLACKLIST.split('\n')
-            .map(domain => domain.trim())
+            .map(domain => domain.trim().toLowerCase())
             .filter(domain => domain.length > 0);
         
         return blacklistedDomains.some(domain => {
@@ -203,7 +165,7 @@
         // Check for input elements (except readonly)
         if (tagName === 'input') {
             const type = element.type.toLowerCase();
-            const editableTypes = ['text', 'password', 'email', 'search', 'url', 'tel'];
+            const editableTypes = ['text', 'password', 'email', 'search', 'url', 'tel', 'number', 'date', 'time', 'datetime-local', 'month', 'week'];
             return editableTypes.includes(type) && !element.readOnly && !element.disabled;
         }
         
@@ -240,7 +202,6 @@
             
             return false;
         } catch (err) {
-            console.log('Smart replace failed, proceeding with normal copy:', err);
             return false; // Fallback to normal copy
         }
     }
@@ -288,7 +249,6 @@
             
             return false;
         } catch (err) {
-            console.log('Replace text failed:', err);
             return false;
         }
     }
@@ -300,26 +260,26 @@
     }
     
     function initializeAutoCopy() {
-        console.log('initializeAutoCopy called');
         createStatusElement();
         createPasteIndicator();
         addEventListeners();
-        console.log('initializeAutoCopy completed, statusElement:', !!statusElement);
     }
     
-    function createStatusElement() {
+    function createStatusElement(retries) {
         if (statusElement) return;
-        
-        console.log('createStatusElement called, document.body:', !!document.body);
-        
+        retries = retries || 0;
+
         if (!document.body) {
-            console.log('document.body not available, retrying in 100ms');
-            setTimeout(createStatusElement, 100);
+            if (retries < 50) {
+                setTimeout(() => createStatusElement(retries + 1), 100);
+            }
             return;
         }
         
         statusElement = document.createElement('div');
         statusElement.id = 'auto-copy-status';
+        statusElement.setAttribute('role', 'status');
+        statusElement.setAttribute('aria-live', 'polite');
         statusElement.style.cssText = `
             position: fixed;
             background-color: #4CAF50;
@@ -336,7 +296,6 @@
         `;
         updateStatusElementPosition();
         document.body.appendChild(statusElement);
-        console.log('statusElement created and appended to body');
     }
     
     function updateStatusElementPosition() {
@@ -499,18 +458,14 @@
     }
     
     function showStatus(message) {
-        console.log('showStatus called:', message, {
-            statusElement: !!statusElement,
-            isEnabled: isEnabled,
-            HIDE_TOAST_NOTIFICATIONS: HIDE_TOAST_NOTIFICATIONS
-        });
-        
         if (!statusElement || !isEnabled || HIDE_TOAST_NOTIFICATIONS) return;
-        
+
+        if (statusTimeout) clearTimeout(statusTimeout);
+
         statusElement.textContent = message;
         statusElement.style.opacity = '1';
-        
-        setTimeout(() => {
+
+        statusTimeout = setTimeout(() => {
             if (statusElement) {
                 statusElement.style.opacity = '0';
             }
@@ -580,6 +535,7 @@
                 return true;
             } else if (element.contentEditable === 'true' || element.isContentEditable) {
                 const selection = window.getSelection();
+                if (!selection || selection.rangeCount === 0) return false;
                 const range = selection.getRangeAt(0);
                 
                 range.deleteContents();
@@ -601,12 +557,7 @@
     }
     
     function getSelectedText() {
-        if (window.getSelection) {
-            return window.getSelection().toString();
-        } else if (document.selection && document.selection.type !== "Control") {
-            return document.selection.createRange().text;
-        }
-        return '';
+        return window.getSelection ? window.getSelection().toString() : '';
     }
     
     function handleMouseDown(e) {
@@ -623,10 +574,7 @@
     }
     
     function canPasteToElement(element) {
-        return element.tagName === 'INPUT' || 
-               element.tagName === 'TEXTAREA' || 
-               element.contentEditable === 'true' || 
-               element.isContentEditable;
+        return isEditableElement(element);
     }
     
     function startHoldTimer(e) {
@@ -660,7 +608,8 @@
         
         pasteIndicator.style.left = (x - 30) + 'px';
         pasteIndicator.style.top = (y - 30) + 'px';
-        pasteIndicator.style.display = 'block';
+        const displayTypes = { circular: 'block', pulse: 'block', spiral: 'flex', dots: 'flex', bars: 'flex', ripple: 'flex', loader: 'flex', grid: 'grid' };
+        pasteIndicator.style.display = displayTypes[SPINNER_STYLE] || 'block';
         pasteIndicator.style.transform = 'scale(0.8)';
         
         requestAnimationFrame(() => {
@@ -684,11 +633,9 @@
             if (progressRing) {
                 const angle = progress * 360;
                 // Blue to green transition: interpolate between #2196F3 and #4CAF50
-                const blue = { r: 33, g: 150, b: 243 };
-                const green = { r: 76, g: 175, b: 80 };
-                const r = Math.round(blue.r + (green.r - blue.r) * progress);
-                const g = Math.round(blue.g + (green.g - blue.g) * progress);
-                const b = Math.round(blue.b + (green.b - blue.b) * progress);
+                const r = Math.round(BLUE.r + (GREEN.r - BLUE.r) * progress);
+                const g = Math.round(BLUE.g + (GREEN.g - BLUE.g) * progress);
+                const b = Math.round(BLUE.b + (GREEN.b - BLUE.b) * progress);
                 const color = `rgb(${r}, ${g}, ${b})`;
                 progressRing.style.borderTopColor = color;
                 progressRing.style.transform = `rotate(${-90 + angle}deg)`;
@@ -700,9 +647,9 @@
         }
     }
     
-    function completePaste(targetElement, x, y) {
+    async function completePaste(targetElement, x, y) {
         hidePasteIndicator();
-        pasteFromClipboard(targetElement, x, y);
+        await pasteFromClipboard(targetElement, x, y);
         isHolding = false;
     }
     
@@ -742,107 +689,49 @@
         }
     }
     
+    async function attemptCopyOrReplace(target) {
+        const selectedText = getSelectedText();
+        const processedText = processTextForCopy(selectedText);
+        if (!processedText) return;
+
+        if (SMART_REPLACE_ENABLED && isEditableElement(target)) {
+            const replaced = await handleSmartReplace(target, processedText);
+            if (replaced) return;
+        }
+
+        const success = await copyToClipboard(processedText);
+        if (success) {
+            handleSuccessfulCopy(processedText);
+        } else {
+            showStatus('Failed to copy text');
+        }
+    }
+
     function handleMouseUp(e) {
         if (!isEnabled || !MOUSE_SELECTION_ENABLED) return;
-        
-        if (isHolding) {
-            cancelHold();
-        }
-        
+
+        if (isHolding) { cancelHold(); }
+
         if (!isSelecting) return;
         isSelecting = false;
-        
-        selectionTimeout = setTimeout(async () => {
-            const selectedText = getSelectedText();
-            
-            const processedText = processTextForCopy(selectedText);
-            if (processedText) {
-                // Check if Smart Replace should be used
-                if (SMART_REPLACE_ENABLED && isEditableElement(e.target)) {
-                    const replaced = await handleSmartReplace(e.target, processedText);
-                    if (replaced) {
-                        return; // Smart replace succeeded, don't proceed with normal copy
-                    }
-                }
-                
-                // Normal copy behavior
-                copyToClipboard(processedText)
-                    .then(success => {
-                        if (success) {
-                            handleSuccessfulCopy(processedText);
-                        } else {
-                            showStatus('Failed to copy text');
-                        }
-                    });
-            }
-        }, 10);
+
+        selectionTimeout = setTimeout(() => attemptCopyOrReplace(e.target), 10);
     }
-    
+
     function handleKeyUp(e) {
         if (!isEnabled || !KEYBOARD_SELECTION_ENABLED) return;
-        
-        if (e.shiftKey || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || 
-            e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+
+        if (e.shiftKey || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+            e.key === 'ArrowUp' || e.key === 'ArrowDown' ||
             (e.ctrlKey && e.key === 'a')) {
-            
-            setTimeout(async () => {
-                const selectedText = getSelectedText();
-                
-                if (selectedText && selectedText.trim().length >= MIN_SELECTION_LENGTH) {
-                    const processedText = selectedText.trim();
-                    
-                    // Check if Smart Replace should be used
-                    if (SMART_REPLACE_ENABLED && isEditableElement(e.target)) {
-                        const replaced = await handleSmartReplace(e.target, processedText);
-                        if (replaced) {
-                            return; // Smart replace succeeded, don't proceed with normal copy
-                        }
-                    }
-                    
-                    // Normal copy behavior
-                    copyToClipboard(processedText)
-                        .then(success => {
-                            if (success) {
-                                const preview = processedText.length > 30 
-                                    ? processedText.substring(0, 30) + '...' 
-                                    : processedText;
-                                showStatus(`Copied: "${preview}"`);
-                            } else {
-                                showStatus('Failed to copy text');
-                            }
-                        });
-                }
-            }, 10);
+            setTimeout(() => attemptCopyOrReplace(e.target), 10);
         }
     }
-    
+
     function handleDoubleClick(e) {
         if (!isEnabled || !DOUBLE_CLICK_ENABLED) return;
-        
-        setTimeout(async () => {
-            const selectedText = getSelectedText();
-            
-            const processedText = processTextForCopy(selectedText);
-            if (processedText) {
-                // Check if Smart Replace should be used
-                if (SMART_REPLACE_ENABLED && isEditableElement(e.target)) {
-                    const replaced = await handleSmartReplace(e.target, processedText);
-                    if (replaced) {
-                        return; // Smart replace succeeded, don't proceed with normal copy
-                    }
-                }
-                
-                // Normal copy behavior
-                copyToClipboard(processedText)
-                    .then(success => {
-                        if (success) {
-                            handleSuccessfulCopy(processedText);
-                        } else {
-                            showStatus('Failed to copy text');
-                        }
-                    });
-            }
-        }, 10);
+
+        setTimeout(() => attemptCopyOrReplace(e.target), 10);
     }
     
     function addEventListeners() {

@@ -1,4 +1,22 @@
 document.addEventListener('DOMContentLoaded', function() {
+    function saveSettings(obj, callback) {
+        chrome.storage.sync.set(obj, function() {
+            if (chrome.runtime.lastError) {
+                console.error('Failed to save settings:', chrome.runtime.lastError.message);
+            }
+            if (callback) callback();
+        });
+    }
+
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    function updateSliderProgress(slider) {
+        const pct = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+        slider.style.setProperty('--progress', pct + '%');
+    }
+
     const copyToggle = document.getElementById('enableToggle');
     const pasteToggle = document.getElementById('pasteToggle');
     const delaySlider = document.getElementById('delaySlider');
@@ -47,32 +65,42 @@ document.addEventListener('DOMContentLoaded', function() {
         'smartReplaceEnabled',
         'websiteBlacklist'
     ], function(result) {
+        if (chrome.runtime.lastError) {
+            console.error('Failed to load settings:', chrome.runtime.lastError.message);
+            return;
+        }
         copyToggle.checked = result.autoCopyEnabled !== false;
         pasteToggle.checked = result.holdPasteEnabled !== false;
         
-        const delay = result.pasteDelay || 450;
+        const delay = clamp(result.pasteDelay ?? 450, 200, 1000);
         delaySlider.value = delay;
         delayValue.textContent = delay + 'ms';
-        
-        const statusDuration = result.statusDuration || 2000;
+        updateSliderProgress(delaySlider);
+
+        const statusDuration = clamp(result.statusDuration ?? 2000, 200, 5000);
         statusDurationSlider.value = statusDuration;
         statusDurationValue.textContent = statusDuration + 'ms';
-        
-        const previewLength = result.previewLength || 30;
+        updateSliderProgress(statusDurationSlider);
+
+        const previewLength = clamp(result.previewLength ?? 30, 10, 100);
         previewLengthSlider.value = previewLength;
         previewLengthValue.textContent = previewLength + ' chars';
-        
-        const minSelection = result.minSelectionLength || 1;
+        updateSliderProgress(previewLengthSlider);
+
+        const minSelection = clamp(result.minSelectionLength ?? 1, 1, 50);
         minSelectionSlider.value = minSelection;
         minSelectionValue.textContent = minSelection + ' char' + (minSelection === 1 ? '' : 's');
-        
-        const movementTolerance = result.movementTolerance || 8;
+        updateSliderProgress(minSelectionSlider);
+
+        const movementTolerance = clamp(result.movementTolerance ?? 8, 2, 20);
         movementToleranceSlider.value = movementTolerance;
         movementToleranceValue.textContent = movementTolerance + 'px';
-        
-        const spinnerDelay = result.spinnerDelay || 100;
+        updateSliderProgress(movementToleranceSlider);
+
+        const spinnerDelay = clamp(result.spinnerDelay ?? 100, 0, 500);
         spinnerDelaySlider.value = spinnerDelay;
         spinnerDelayValue.textContent = spinnerDelay + 'ms';
+        updateSliderProgress(spinnerDelaySlider);
         
         const position = result.notificationPosition || 'top-right';
         notificationPosition.value = position;
@@ -98,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     copyToggle.addEventListener('change', function() {
         const enabled = copyToggle.checked;
         
-        chrome.storage.sync.set({ autoCopyEnabled: enabled }, function() {
+        saveSettings({ autoCopyEnabled: enabled }, function() {
             updateStatus(enabled, pasteToggle.checked);
         });
     });
@@ -106,99 +134,103 @@ document.addEventListener('DOMContentLoaded', function() {
     pasteToggle.addEventListener('change', function() {
         const enabled = pasteToggle.checked;
         
-        chrome.storage.sync.set({ holdPasteEnabled: enabled }, function() {
+        saveSettings({ holdPasteEnabled: enabled }, function() {
             updateStatus(copyToggle.checked, enabled);
         });
     });
     
     delaySlider.addEventListener('input', function() {
-        const delay = parseInt(delaySlider.value);
+        const delay = parseInt(delaySlider.value) || 450;
         delayValue.textContent = delay + 'ms';
-        
-        chrome.storage.sync.set({ pasteDelay: delay });
+        updateSliderProgress(delaySlider);
+        saveSettings({ pasteDelay: delay });
     });
-    
+
     statusDurationSlider.addEventListener('input', function() {
-        const duration = parseInt(statusDurationSlider.value);
+        const duration = parseInt(statusDurationSlider.value) || 2000;
         statusDurationValue.textContent = duration + 'ms';
-        
-        chrome.storage.sync.set({ statusDuration: duration });
+        updateSliderProgress(statusDurationSlider);
+        saveSettings({ statusDuration: duration });
     });
-    
+
     previewLengthSlider.addEventListener('input', function() {
-        const length = parseInt(previewLengthSlider.value);
+        const length = parseInt(previewLengthSlider.value) || 30;
         previewLengthValue.textContent = length + ' chars';
-        
-        chrome.storage.sync.set({ previewLength: length });
+        updateSliderProgress(previewLengthSlider);
+        saveSettings({ previewLength: length });
     });
-    
+
     minSelectionSlider.addEventListener('input', function() {
-        const minLength = parseInt(minSelectionSlider.value);
+        const minLength = parseInt(minSelectionSlider.value) || 1;
         minSelectionValue.textContent = minLength + ' char' + (minLength === 1 ? '' : 's');
-        
-        chrome.storage.sync.set({ minSelectionLength: minLength });
+        updateSliderProgress(minSelectionSlider);
+        saveSettings({ minSelectionLength: minLength });
     });
-    
+
     movementToleranceSlider.addEventListener('input', function() {
-        const tolerance = parseInt(movementToleranceSlider.value);
+        const tolerance = parseInt(movementToleranceSlider.value) || 8;
         movementToleranceValue.textContent = tolerance + 'px';
-        
-        chrome.storage.sync.set({ movementTolerance: tolerance });
+        updateSliderProgress(movementToleranceSlider);
+        saveSettings({ movementTolerance: tolerance });
     });
-    
+
     spinnerDelaySlider.addEventListener('input', function() {
-        const delay = parseInt(spinnerDelaySlider.value);
+        const delay = parseInt(spinnerDelaySlider.value) || 0;
         spinnerDelayValue.textContent = delay + 'ms';
-        
-        chrome.storage.sync.set({ spinnerDelay: delay });
+        updateSliderProgress(spinnerDelaySlider);
+        saveSettings({ spinnerDelay: delay });
     });
     
     notificationPosition.addEventListener('change', function() {
         const position = notificationPosition.value;
         
-        chrome.storage.sync.set({ notificationPosition: position });
+        saveSettings({ notificationPosition: position });
     });
     
     spinnerStyle.addEventListener('change', function() {
         const style = spinnerStyle.value;
         
-        chrome.storage.sync.set({ spinnerStyle: style });
+        saveSettings({ spinnerStyle: style });
     });
     
     mouseSelectionTrigger.addEventListener('change', function() {
-        chrome.storage.sync.set({ mouseSelectionEnabled: mouseSelectionTrigger.checked });
+        saveSettings({ mouseSelectionEnabled: mouseSelectionTrigger.checked });
     });
     
     keyboardSelectionTrigger.addEventListener('change', function() {
-        chrome.storage.sync.set({ keyboardSelectionEnabled: keyboardSelectionTrigger.checked });
+        saveSettings({ keyboardSelectionEnabled: keyboardSelectionTrigger.checked });
     });
     
     doubleClickTrigger.addEventListener('change', function() {
-        chrome.storage.sync.set({ doubleClickEnabled: doubleClickTrigger.checked });
+        saveSettings({ doubleClickEnabled: doubleClickTrigger.checked });
     });
     
     autoTrimWhitespace.addEventListener('change', function() {
-        chrome.storage.sync.set({ autoTrimEnabled: autoTrimWhitespace.checked });
+        saveSettings({ autoTrimEnabled: autoTrimWhitespace.checked });
     });
     
     duplicatePrevention.addEventListener('change', function() {
-        chrome.storage.sync.set({ duplicatePreventionEnabled: duplicatePrevention.checked });
+        saveSettings({ duplicatePreventionEnabled: duplicatePrevention.checked });
     });
     
     hideToastNotifications.addEventListener('change', function() {
-        chrome.storage.sync.set({ hideToastNotifications: hideToastNotifications.checked });
+        saveSettings({ hideToastNotifications: hideToastNotifications.checked });
     });
     
     hidePasteSpinner.addEventListener('change', function() {
-        chrome.storage.sync.set({ hidePasteSpinner: hidePasteSpinner.checked });
+        saveSettings({ hidePasteSpinner: hidePasteSpinner.checked });
     });
     
     smartReplaceEnabled.addEventListener('change', function() {
-        chrome.storage.sync.set({ smartReplaceEnabled: smartReplaceEnabled.checked });
+        saveSettings({ smartReplaceEnabled: smartReplaceEnabled.checked });
     });
     
+    let blacklistDebounce = null;
     websiteBlacklist.addEventListener('input', function() {
-        chrome.storage.sync.set({ websiteBlacklist: websiteBlacklist.value });
+        clearTimeout(blacklistDebounce);
+        blacklistDebounce = setTimeout(function() {
+            saveSettings({ websiteBlacklist: websiteBlacklist.value });
+        }, 500);
     });
     
     function updateStatus(copyEnabled, pasteEnabled) {
@@ -233,24 +265,30 @@ document.addEventListener('DOMContentLoaded', function() {
             header.addEventListener('click', function() {
                 if (content && arrow) {
                     const isCollapsed = content.classList.contains('collapsed');
-                    
+
                     if (isCollapsed) {
                         // Expand
                         content.classList.remove('collapsed');
                         content.style.maxHeight = content.scrollHeight + 'px';
                         arrow.classList.remove('collapsed');
+                        header.setAttribute('aria-expanded', 'true');
                     } else {
                         // Collapse
                         content.classList.add('collapsed');
                         content.style.maxHeight = '0';
                         arrow.classList.add('collapsed');
+                        header.setAttribute('aria-expanded', 'false');
                     }
                 }
             });
         });
     }
     
+    let tooltipsInitialized = false;
     function initializeTooltips() {
+        if (tooltipsInitialized) return;
+        tooltipsInitialized = true;
+
         // Check if we're on a touch device
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         
@@ -273,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create tooltip element
             const tooltip = document.createElement('div');
             tooltip.className = 'tooltip';
-            tooltip.innerHTML = tooltipText;
+            tooltip.textContent = tooltipText;
             document.body.appendChild(tooltip);
             
             // Mouse enter event
@@ -291,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showTimeout = setTimeout(() => {
                     showTooltip(tooltip, trigger);
                     currentTooltip = tooltip;
-                }, 800); // 800ms delay as specified
+                }, 400); // 400ms delay for responsive tooltips
             });
             
             // Mouse leave event

@@ -6,7 +6,7 @@ const DEFAULTS = {
     previewLength: 30,
     minSelectionLength: 1,
     movementTolerance: 8,
-    spinnerDelay: 100,
+    spinnerDelay: 500,
     notificationPosition: 'top-right',
     mouseSelectionEnabled: true,
     keyboardSelectionEnabled: true,

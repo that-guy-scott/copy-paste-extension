@@ -21,7 +21,7 @@
     let STATUS_DURATION = 2000;
     let PREVIEW_LENGTH = 30;
     let MIN_SELECTION_LENGTH = 1;
-    let SPINNER_DELAY = 100;
+    let SPINNER_DELAY = 500;
     let MOVEMENT_TOLERANCE = 8;
     let NOTIFICATION_POSITION = 'top-right';
     let MOUSE_SELECTION_ENABLED = true;

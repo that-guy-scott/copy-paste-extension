@@ -17,7 +17,8 @@ const DEFAULTS = {
     hideToastNotifications: false,
     hidePasteSpinner: false,
     spinnerStyle: 'circular',
-    smartReplaceEnabled: false
+    smartReplaceEnabled: false,
+    pasteMethod: 'middle-click'
 };
 
 chrome.runtime.onInstalled.addListener(function(details) {
@@ -38,6 +39,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
                 if (!(key in existing)) {
                     missing[key] = value;
                 }
+            }
+            // Migrate existing users: preserve hold behavior if they had paste enabled
+            if ('pasteMethod' in missing && existing.holdPasteEnabled) {
+                missing.pasteMethod = 'hold';
             }
             if (Object.keys(missing).length > 0) {
                 chrome.storage.sync.set(missing, function() {

@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const hideToastNotifications = document.getElementById('hideToastNotifications');
     const hidePasteSpinner = document.getElementById('hidePasteSpinner');
     const smartReplaceEnabled = document.getElementById('smartReplaceEnabled');
+    const pasteMethodSelect = document.getElementById('pasteMethodSelect');
+    const pasteMethodContainer = document.getElementById('pasteMethodContainer');
     const websiteBlacklist = document.getElementById('websiteBlacklist');
     const status = document.getElementById('status');
     
@@ -63,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'hideToastNotifications',
         'hidePasteSpinner',
         'smartReplaceEnabled',
+        'pasteMethod',
         'websiteBlacklist'
     ], function(result) {
         if (chrome.runtime.lastError) {
@@ -116,8 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
         hideToastNotifications.checked = result.hideToastNotifications === true;
         hidePasteSpinner.checked = result.hidePasteSpinner === true;
         smartReplaceEnabled.checked = result.smartReplaceEnabled === true;
+        const pasteMethod = result.pasteMethod || 'middle-click';
+        pasteMethodSelect.value = pasteMethod;
+        updateHoldOnlyVisibility(pasteMethod);
+        updatePasteMethodVisibility(pasteToggle.checked);
         websiteBlacklist.value = result.websiteBlacklist || '';
-        
+
         updateStatus(copyToggle.checked, pasteToggle.checked);
         initializeCollapsible();
         initializeTooltips();
@@ -133,10 +140,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     pasteToggle.addEventListener('change', function() {
         const enabled = pasteToggle.checked;
-        
+        updatePasteMethodVisibility(enabled);
         saveSettings({ holdPasteEnabled: enabled }, function() {
             updateStatus(copyToggle.checked, enabled);
         });
+    });
+
+    pasteMethodSelect.addEventListener('change', function() {
+        const method = pasteMethodSelect.value;
+        updateHoldOnlyVisibility(method);
+        saveSettings({ pasteMethod: method });
     });
     
     delaySlider.addEventListener('input', function() {
@@ -233,6 +246,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     });
     
+    function updateHoldOnlyVisibility(method) {
+        const isHold = method === 'hold';
+        document.querySelectorAll('.hold-only-setting').forEach(el => {
+            el.style.display = isHold ? '' : 'none';
+        });
+        // Recalculate collapsible section heights
+        document.querySelectorAll('.collapsible-content:not(.collapsed)').forEach(content => {
+            content.style.maxHeight = content.scrollHeight + 'px';
+        });
+    }
+
+    function updatePasteMethodVisibility(pasteEnabled) {
+        pasteMethodContainer.style.display = pasteEnabled ? '' : 'none';
+        if (!pasteEnabled) {
+            document.querySelectorAll('.hold-only-setting').forEach(el => {
+                el.style.display = 'none';
+            });
+        } else {
+            updateHoldOnlyVisibility(pasteMethodSelect.value);
+        }
+        // Recalculate collapsible section heights
+        document.querySelectorAll('.collapsible-content:not(.collapsed)').forEach(content => {
+            content.style.maxHeight = content.scrollHeight + 'px';
+        });
+    }
+
     function updateStatus(copyEnabled, pasteEnabled) {
         let statusText = '';
         if (copyEnabled && pasteEnabled) {

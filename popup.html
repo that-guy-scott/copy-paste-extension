@@ -538,6 +538,17 @@
                     <span class="slider"></span>
                 </label>
             </div>
+
+            <div class="dropdown-container tooltip-container" id="pasteMethodContainer">
+                <div class="dropdown-label">
+                    <span class="tooltip-trigger" data-tooltip="How paste is triggered on input fields">Paste Method</span>
+                </div>
+                <select id="pasteMethodSelect" class="dropdown-select" aria-label="Paste Method">
+                    <option value="hold">Left-click Hold</option>
+                    <option value="middle-click">Middle-click</option>
+                    <option value="double-click-empty">Double-click Empty Input</option>
+                </select>
+            </div>
         </div>
     </div>
     
@@ -547,7 +558,7 @@
             <span class="collapsible-arrow">▼</span>
         </button>
         <div class="collapsible-content" id="timing-settings">
-            <div class="slider-container tooltip-container">
+            <div class="slider-container tooltip-container hold-only-setting">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="Hold duration before pasting (200-1000ms)">Paste Delay</span>
                     <span class="slider-value" id="delayValue">450ms</span>
@@ -563,7 +574,7 @@
                 <input type="range" id="statusDurationSlider" class="range-slider" min="200" max="5000" step="200" value="2000" aria-label="Status Duration">
             </div>
             
-            <div class="slider-container tooltip-container">
+            <div class="slider-container tooltip-container hold-only-setting">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="When paste indicator appears (0-500ms)">Spinner Delay</span>
                     <span class="slider-value" id="spinnerDelayValue">500ms</span>
@@ -628,7 +639,7 @@
                 </label>
             </div>
             
-            <div class="dropdown-container tooltip-container">
+            <div class="dropdown-container tooltip-container hold-only-setting">
                 <div class="dropdown-label">
                     <span class="tooltip-trigger" data-tooltip="Visual style of the paste spinner animation">Spinner Style</span>
                 </div>
@@ -652,7 +663,7 @@
             <span class="collapsible-arrow">▼</span>
         </button>
         <div class="collapsible-content" id="advanced-settings">
-            <div class="slider-container tooltip-container">
+            <div class="slider-container tooltip-container hold-only-setting">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="Mouse movement allowed during paste (2-20px)">Movement Tolerance</span>
                     <span class="slider-value" id="movementToleranceValue">8px</span>
@@ -688,7 +699,7 @@
                     <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Hide copy/paste success notifications">Hide Toast Notifications</span>
                 </label>
-                <label class="checkbox-item tooltip-container">
+                <label class="checkbox-item tooltip-container hold-only-setting">
                     <input type="checkbox" id="hidePasteSpinner">
                     <span class="custom-checkbox"></span>
                     <span class="tooltip-trigger" data-tooltip="Hide circular indicator during paste gestures">Hide Paste Spinner</span>

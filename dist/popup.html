@@ -598,6 +598,18 @@
                 <input type="range" id="previewLengthSlider" class="range-slider" min="10" max="100" step="5" value="30" aria-label="Preview Length">
             </div>
             
+            <div class="dropdown-container tooltip-container">
+                <div class="dropdown-label">
+                    <span class="tooltip-trigger" data-tooltip="Transform copied text before saving to clipboard">Text Transform</span>
+                </div>
+                <select id="textTransform" class="dropdown-select" aria-label="Text Transform">
+                    <option value="none">None</option>
+                    <option value="lowercase">lowercase</option>
+                    <option value="uppercase">UPPERCASE</option>
+                    <option value="titlecase">Title Case</option>
+                </select>
+            </div>
+
             <div class="slider-container tooltip-container">
                 <div class="slider-label">
                     <span class="tooltip-trigger" data-tooltip="Minimum text length to trigger copy (1-50)">Min Selection</span>
@@ -691,7 +703,7 @@
                     <span class="tooltip-trigger" data-tooltip="Replace selected text in input fields with clipboard content instead of copying">Smart Replace Mode</span>
                 </label>
             </div>
-            
+
             <div class="checkbox-group">
                 <label class="textarea-label">Visual Options:</label>
                 <label class="checkbox-item tooltip-container">

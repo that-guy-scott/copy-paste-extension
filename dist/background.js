@@ -18,7 +18,8 @@ const DEFAULTS = {
     hidePasteSpinner: false,
     spinnerStyle: 'circular',
     smartReplaceEnabled: false,
-    pasteMethod: 'middle-click'
+    pasteMethod: 'middle-click',
+    textTransform: 'none'
 };
 
 chrome.runtime.onInstalled.addListener(function(details) {

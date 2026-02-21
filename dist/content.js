@@ -35,6 +35,8 @@
     let SPINNER_STYLE = 'circular';
     let SMART_REPLACE_ENABLED = false;
     let PASTE_METHOD = 'middle-click';
+    let TEXT_TRANSFORM = 'none';
+    let suppressNativePaste = false;
     let lastCopiedText = '';
     
     chrome.storage.sync.get([
@@ -57,6 +59,7 @@
         'hidePasteSpinner',
         'smartReplaceEnabled',
         'pasteMethod',
+        'textTransform',
         'websiteBlacklist'
     ], function(result) {
         if (chrome.runtime.lastError) {
@@ -83,6 +86,7 @@
         SPINNER_STYLE = result.spinnerStyle || 'circular';
         SMART_REPLACE_ENABLED = result.smartReplaceEnabled === true;
         PASTE_METHOD = result.pasteMethod || 'middle-click';
+        TEXT_TRANSFORM = result.textTransform || 'none';
         WEBSITE_BLACKLIST = result.websiteBlacklist || '';
         
         if (isEnabled && !isCurrentSiteBlacklisted()) {
@@ -109,6 +113,7 @@
         spinnerStyle: v => { SPINNER_STYLE = v; recreatePasteIndicator(); },
         smartReplaceEnabled: v => SMART_REPLACE_ENABLED = v,
         pasteMethod: v => PASTE_METHOD = v,
+        textTransform: v => TEXT_TRANSFORM = v,
     };
 
     chrome.storage.onChanged.addListener(function(changes, namespace) {
@@ -137,17 +142,38 @@
             .filter(domain => domain.length > 0);
         
         return blacklistedDomains.some(domain => {
-            // Check for exact match or subdomain match
-            return currentDomain === domain || currentDomain.endsWith('.' + domain);
+            if (currentDomain === domain) return true;
+            const suffix = '.' + domain;
+            return currentDomain.endsWith(suffix);
         });
     }
     
+    function getClipboardErrorMessage(err, action) {
+        if (err.name === 'NotAllowedError') {
+            return action + ' blocked — click page to grant focus';
+        }
+        if (err.name === 'SecurityError') {
+            return action + ' blocked by site security policy';
+        }
+        return action + ' failed: ' + (err.message || 'unknown error');
+    }
+
+    function applyTextTransform(text) {
+        switch (TEXT_TRANSFORM) {
+            case 'lowercase': return text.toLowerCase();
+            case 'uppercase': return text.toUpperCase();
+            case 'titlecase': return text.replace(/\b\w/g, c => c.toUpperCase());
+            default: return text;
+        }
+    }
+
     function processTextForCopy(text) {
         if (!text) return null;
         
         // Apply auto-trim if enabled
-        const processedText = AUTO_TRIM_ENABLED ? text.trim() : text;
-        
+        let processedText = AUTO_TRIM_ENABLED ? text.trim() : text;
+        processedText = applyTextTransform(processedText);
+
         // Check minimum length
         if (processedText.length < MIN_SELECTION_LENGTH) {
             return null;
@@ -206,7 +232,8 @@
             
             return false;
         } catch (err) {
-            return false; // Fallback to normal copy
+            showStatus(getClipboardErrorMessage(err, 'Smart replace'));
+            return false;
         }
     }
     
@@ -519,7 +546,7 @@
                 return false;
             }
         } catch (err) {
-            showStatus('Cannot access clipboard');
+            showStatus(getClipboardErrorMessage(err, 'Paste'));
             return false;
         }
     }
@@ -593,7 +620,8 @@
         holdStartTime = Date.now();
         initialMouseX = e.clientX;
         initialMouseY = e.clientY;
-        
+        document.addEventListener('mousemove', handleMouseMove, true);
+
         spinnerTimer = setTimeout(() => {
             if (isHolding && !HIDE_PASTE_SPINNER) {
                 showPasteIndicator(e.clientX, e.clientY);
@@ -653,6 +681,7 @@
     
     async function completePaste(targetElement, x, y) {
         hidePasteIndicator();
+        document.removeEventListener('mousemove', handleMouseMove, true);
         await pasteFromClipboard(targetElement, x, y);
         isHolding = false;
     }
@@ -677,6 +706,7 @@
             clearTimeout(spinnerTimer);
             spinnerTimer = null;
         }
+        document.removeEventListener('mousemove', handleMouseMove, true);
         isHolding = false;
         hidePasteIndicator();
     }
@@ -707,7 +737,7 @@
         if (success) {
             handleSuccessfulCopy(processedText);
         } else {
-            showStatus('Failed to copy text');
+            showStatus('Copy failed — check clipboard permissions');
         }
     }
 
@@ -745,6 +775,13 @@
         return false;
     }
 
+    function handleNativePaste(e) {
+        if (suppressNativePaste) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }
+
     function handleAuxClick(e) {
         if (!isEnabled || !isPasteEnabled || PASTE_METHOD !== 'middle-click') return;
         if (e.button !== 1) return;
@@ -758,6 +795,8 @@
         if (e.button !== 1) return;
         if (canPasteToElement(e.target)) {
             e.preventDefault();
+            suppressNativePaste = true;
+            setTimeout(() => { suppressNativePaste = false; }, 500);
         }
     }
 
@@ -778,20 +817,20 @@
         document.addEventListener('mousedown', handleMouseDown, true);
         document.addEventListener('mousedown', handleMiddleMouseDown, true);
         document.addEventListener('mouseup', handleMouseUp, true);
-        document.addEventListener('mousemove', handleMouseMove, true);
         document.addEventListener('keyup', handleKeyUp, true);
         document.addEventListener('dblclick', handleDoubleClick, true);
         document.addEventListener('auxclick', handleAuxClick, true);
+        document.addEventListener('paste', handleNativePaste, true);
     }
     
     function removeEventListeners() {
         document.removeEventListener('mousedown', handleMouseDown, true);
         document.removeEventListener('mousedown', handleMiddleMouseDown, true);
         document.removeEventListener('mouseup', handleMouseUp, true);
-        document.removeEventListener('mousemove', handleMouseMove, true);
         document.removeEventListener('keyup', handleKeyUp, true);
         document.removeEventListener('dblclick', handleDoubleClick, true);
         document.removeEventListener('auxclick', handleAuxClick, true);
+        document.removeEventListener('paste', handleNativePaste, true);
         
         if (statusElement) {
             statusElement.style.opacity = '0';

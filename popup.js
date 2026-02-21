@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const hideToastNotifications = document.getElementById('hideToastNotifications');
     const hidePasteSpinner = document.getElementById('hidePasteSpinner');
     const smartReplaceEnabled = document.getElementById('smartReplaceEnabled');
+    const textTransformSelect = document.getElementById('textTransform');
     const pasteMethodSelect = document.getElementById('pasteMethodSelect');
     const pasteMethodContainer = document.getElementById('pasteMethodContainer');
     const websiteBlacklist = document.getElementById('websiteBlacklist');
@@ -66,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'hidePasteSpinner',
         'smartReplaceEnabled',
         'pasteMethod',
+        'textTransform',
         'websiteBlacklist'
     ], function(result) {
         if (chrome.runtime.lastError) {
@@ -119,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideToastNotifications.checked = result.hideToastNotifications === true;
         hidePasteSpinner.checked = result.hidePasteSpinner === true;
         smartReplaceEnabled.checked = result.smartReplaceEnabled === true;
+        textTransformSelect.value = result.textTransform || 'none';
         const pasteMethod = result.pasteMethod || 'middle-click';
         pasteMethodSelect.value = pasteMethod;
         updateHoldOnlyVisibility(pasteMethod);
@@ -237,7 +240,11 @@ document.addEventListener('DOMContentLoaded', function() {
     smartReplaceEnabled.addEventListener('change', function() {
         saveSettings({ smartReplaceEnabled: smartReplaceEnabled.checked });
     });
-    
+
+    textTransformSelect.addEventListener('change', function() {
+        saveSettings({ textTransform: textTransformSelect.value });
+    });
+
     let blacklistDebounce = null;
     websiteBlacklist.addEventListener('input', function() {
         clearTimeout(blacklistDebounce);

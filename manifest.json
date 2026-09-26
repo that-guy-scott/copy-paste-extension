@@ -3,7 +3,7 @@
   "name": "Auto Copy Selection",
   "version": "1.0.0",
   "description": "Streamline your copy-paste workflow with automatic text copying and intuitive hold-to-paste gestures",
-  "homepage_url": "https://github.com/your-username/auto-copy-selection",
+  "homepage_url": "https://github.com/that-guy-scott/copy-paste-extension",
   "permissions": [
     "activeTab",
     "storage",
@@ -12,9 +12,16 @@
   ],
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["content.js"],
-      "css": ["content.css"]
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ]
     }
   ],
   "action": {
